@@ -1,21 +1,16 @@
 ELEMENTS.set(RED.splash, {
 	name: "Fire",
-	key: ["f", "2"],
+	key: ["f", "3"],
 	update: (cell, world) => {
-		if (cell.dimensions[1] > MIN_SIZE) {
-			const [above, me] = split(cell, [2, 1])
-
-			const splitReplacements = [[cell], [above, me]]
-
-			const slideDirection = randomFrom(["left", "right", "top", "bottom"])
-			const movements = move(above, world, slideDirection, FALL_SPEED)
-			if (movements.length > 0) {
-				const splittings = world.replace(...splitReplacements)
-				const movings = world.replace(...movements)
-				return [...splittings, ...movings]
-			}
+		// Decay
+		if (oneIn(200)) {
+			return world.replace([cell], [recolour(cell, GREY)])
 		}
 
-		return tryToSleep(cell, world)
+		const movements = move(cell, world, randomFrom(["left", "right", "top"]), FALL_SPEED)
+		if (movements.length > 0) {
+			return world.replace(...movements)
+		}
+		return tryToSleep(cell, world, { filter: () => true })
 	},
 })

@@ -1,6 +1,6 @@
 ELEMENTS.set(SILVER.splash, {
 	name: "Stone",
-	key: ["t", "6"],
+	key: ["t", "4"],
 	update: (cell, world) => {
 		const movements = move(cell, world, "bottom", FALL_SPEED)
 		if (movements.length > 0) {

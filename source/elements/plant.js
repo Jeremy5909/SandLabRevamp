@@ -1,6 +1,6 @@
 ELEMENTS.set(GREEN.splash, {
 	name: "Plant",
-	key: ["p", "7"],
+	key: ["p", "5"],
 	update: (cell, world) => {
 		const allContacts = [
 			...pickContacts(cell, world, "top"),

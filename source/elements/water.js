@@ -1,6 +1,6 @@
 ELEMENTS.set(BLUE.splash, {
 	name: "Water",
-	key: ["w", "3"],
+	key: ["w", "2"],
 	update: (cell, world) => {
 		const movements = move(cell, world, "bottom", FALL_SPEED)
 		if (movements.length > 0) {
