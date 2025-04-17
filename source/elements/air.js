@@ -1,7 +1,7 @@
 const AIR_SPLASH = GREY.splash
 ELEMENTS.set(AIR_SPLASH, {
 	name: "Air",
-	key: ["a", "0"],
+	key: ["0"],
 	update: (cell, world) => {
 		const target = getPointerAirTarget(cell)
 		const dimensionErrorScale = cell.dimensions.map((v) => v / target)

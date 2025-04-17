@@ -665,7 +665,6 @@ const HabitatFrogasaurus = {}
 			if (stage.context === undefined) {
 				const canvas = document.createElement("canvas")
 				canvas.style["background-color"] = "#171d28"
-				//canvas.style["image-rendering"] = "pixelated"
 				document.body.style["background-color"] = "#06070a"
 				document.body.style["margin"] = "0px"
 				document.body.style["overflow"] = "hidden"

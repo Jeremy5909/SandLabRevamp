@@ -334,7 +334,7 @@ const global = {
 //===========//
 // GAME LOOP //
 //===========//
-const stage = new Stage({ speed: 1.0, paused: false })
+const stage = new Stage({ speed: 2.0, paused: false })
 
 stage.start = (context) => {
 	const { canvas } = context
@@ -379,38 +379,6 @@ stage.update = (context) => {
 
 	// Update cells
 	for (const cell of world.cells) {
-		// RAINBOW SPLITTER!
-
-		/*
-		if (cell.colour.splash === 0) {
-			if (maybe(0.5)) {
-				const sleepedCells = tryToSleep(cell, world)
-				for (const sleepedCell of sleepedCells) {
-					sleepedCell.draw(image)
-				}
-			}
-			continue
-		}*/
-
-		/*
-		if (cell.dimensions[0] > 0.002 && cell.dimensions[1] > 0.002 && maybe(0.05)) {
-			const splitCells = split(cell, [2, 2])
-			world.replace([cell], splitCells)
-			for (const splitCell of splitCells) {
-				const splash = mutateSplash(splitCell.colour.splash)
-				splitCell.colour = new Splash(splash)
-				splitCell.splash = splash
-				splitCell.draw(image)
-			}
-		} else if (cell.dimensions[0] <= 0.002 || cell.dimensions[1] <= 0.002) {
-			//const splash = mutateSplash(cell.colour.splash)
-			//const newCell = recolour(cell, new Splash(splash))
-			//world.replace([cell], [newCell])
-			//newCell.draw(image)
-		}
-		continue
-		*/
-
 		if (cell.birth === shared.clock) {
 			continue
 		}

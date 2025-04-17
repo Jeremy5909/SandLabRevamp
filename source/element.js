@@ -40,4 +40,4 @@ const getPointerAirTarget = (cell) => {
 	return AIR_TARGET
 }
 
-const SOLID = new Set([YELLOW.splash, ORANGE.splash, GREEN.splash, SILVER.splash])
+const SOLID = new Set([YELLOW.splash, GREEN.splash, SILVER.splash])
