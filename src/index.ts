@@ -1,10 +1,3 @@
-import "./libraries/habitat-embed.ts";
-import "./libraries/camera.ts";
-
-
-import "./elements.ts";
-import "./element.ts";
-
 import "./elements/air.ts";
 import "./elements/fire.ts";
 import "./elements/plant.ts";
