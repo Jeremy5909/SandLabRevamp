@@ -9,9 +9,11 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "esnext",
+    "target": "es2015",
     "moduleResolution": "bundler",
     "esModuleInterop":true,
     "types": [],
+    "lib": ["es2015", "dom"],
 
     // For nodejs:
     // "lib": ["esnext"],

@@ -1,4 +1,9 @@
-ELEMENTS.set(YELLOW.splash, {
+import { FALL_SPEED, MIN_SIZE } from "../element"
+import { ELEMENTS } from "../elements"
+import { Habitat } from "../libraries/habitat-embed"
+import { move, split, tryToSleep } from "../sugar"
+
+ELEMENTS.set(Habitat.YELLOW.splash, {
   name: "Sand",
   key: ["s", "1"],
   update: (cell, world) => {
@@ -12,7 +17,7 @@ ELEMENTS.set(YELLOW.splash, {
 
       const splitReplacements = [[cell], [above, me]]
 
-      const slideDirection = randomFrom(["left", "right"])
+      const slideDirection = Habitat.randomFrom(["left", "right"])
       const movements = move(above, world, slideDirection, FALL_SPEED)
       if (movements.length > 0) {
         const splittings = world.replace(...splitReplacements)

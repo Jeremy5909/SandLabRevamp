@@ -2,7 +2,11 @@
 // They don't add any extra functionality
 // They just make your code more readable
 
-const split = (cell, [rows, columns]) => {
+import { SOLID } from "./element"
+import { AXIS, Cell, DIRECTION, shared } from "./script"
+import { Habitat } from "./libraries/habitat-embed"
+
+export const split = (cell, [rows, columns]) => {
   const { left, right, top, bottom } = cell.bounds
   const [width, height] = cell.dimensions
 
@@ -118,7 +122,7 @@ const reposition = (cell, bounds) => {
   })
 }
 
-const recolour = (cell, colour) => {
+export const recolour = (cell, colour) => {
   return new Cell({
     colour,
     bounds: cell.bounds,
@@ -153,7 +157,7 @@ const getNeighbour = (cell, world, edge) => {
 }
 
 // Pick an array of cells that are adjacent and touching the given cell
-const pickContacts = (cell, world, edge = "right") => {
+export const pickContacts = (cell, world, edge = "right") => {
   const { bounds } = cell
   const direction = DIRECTION[edge]
   const opposite = direction.opposite
@@ -315,7 +319,7 @@ const defaultFilter = (cell) => {
 // 1. The cell is touching a cell that perfectly lines up with it
 // 2. The cell is touching a bigger cell that can be split into multiple cells that line up with it
 // 3. Probably more
-const tryToSleep = (
+export const tryToSleep = (
   cell,
   world,
   { edges = Object.keys(DIRECTION), judge = defaultJudge, compare = defaultCompare, filter = defaultFilter } = {},
@@ -323,7 +327,7 @@ const tryToSleep = (
   let winner = undefined
   let highScore = undefined
 
-  for (const edge of shuffleArray(edges)) {
+  for (const edge of Habitat.shuffleArray(edges)) {
     const replacement = sleep(cell, world, edge, filter)
     const { oldCells, newCells } = replacement
     if (newCells.length === 0) continue
@@ -368,7 +372,7 @@ const equals = (a, b) => {
 }
 
 // Returns a list of replacements that should be done
-const move = (cell, world, edge, speed, minSize = 0) => {
+export const move = (cell, world, edge, speed, minSize = 0) => {
   const direction = DIRECTION[edge]
   const below = pickSnips(cell, world, edge, speed)
 
@@ -422,7 +426,7 @@ const sleep = (cell, world, edge, filter) => {
   }
 
   // Shuffle the contacts so that we don't always merge with the same cell
-  const candidates = shuffleArray(contacts)
+  const candidates = Habitat.shuffleArray(contacts)
 
   const splitCandidates = []
 
@@ -492,7 +496,7 @@ const sleep = (cell, world, edge, filter) => {
 }
 
 // Get the distance from a point to any point on the bounds of a rectangle or inside the rectangle
-const distanceToBounds = (point, bounds) => {
+export const distanceToBounds = (point, bounds) => {
   const { x, y } = point
   const { left, right, top, bottom } = bounds
 

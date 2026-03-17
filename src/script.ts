@@ -1,10 +1,15 @@
+import { Habitat } from "./libraries/habitat-embed"
+import { Camera, View } from "./libraries/camera"
+import { ELEMENTS } from "./elements"
+import { AIR_SPLASH } from "./elements/air"
+import { recolour } from "./sugar"
 //========//
 // SHARED //
 //========//
-const shared = {
+export const shared = {
   clock: 0,
   brush: {
-    colour: YELLOW,
+    colour: Habitat.YELLOW,
   },
 }
 
@@ -13,7 +18,14 @@ const shared = {
 //======//
 // CELL //
 //======//
-const Cell = class {
+export class Cell {
+  birth: number
+  splash: any
+  colour: any
+  bounds: any
+  position: any[]
+  dimensions: number[]
+
   constructor(options = {}) {
     // Properties
     Object.assign(this, {
@@ -23,7 +35,7 @@ const Cell = class {
         top: 0.0,
         bottom: 1.0,
       },
-      colour: BLACK,
+      colour: Habitat.BLACK,
       ...options,
     })
 
@@ -75,13 +87,13 @@ const Cell = class {
 
   clear(image) {
     const { colour } = this
-    this.colour = VOID
+    this.colour = Habitat.VOID
     this.draw(image)
     this.colour = colour
   }
 
   draw(image) {
-    const [x, y] = [this.position.x * image.width, this.position.y * image.height]
+    const [x, y] = [this.position[0] * image.width, this.position[1] * image.height]
     const [width, height] = [this.dimensions[0] * image.width, this.dimensions[1] * image.height]
 
     const left = Math.floor(x)
@@ -119,7 +131,7 @@ const Cell = class {
             y < top + BORDER_WIDTH ||
             y > bottom - BORDER_WIDTH)
 
-        const colour = isBorder ? VOID : fillColour
+        const colour = isBorder ? Habitat.VOID : fillColour
 
         image.data[i + 0] = colour[0]
         image.data[i + 1] = colour[1]
@@ -149,7 +161,9 @@ const setImageAlpha = (image, alpha) => {
 // WORLD //
 //=======//
 class World {
-  constructor({ colour = BLACK } = {}) {
+  cells: Set<Cell>
+  caches: { left: Map<any, any>; right: Map<any, any>; top: Map<any, any>; bottom: Map<any, any> }
+  constructor({ colour = Habitat.BLACK } = {}) {
     // Properties
     this.cells = new Set()
 
@@ -241,16 +255,16 @@ const getSplashDigits = (splash) => {
 
 const mutateSplash = (splash) => {
   const digits = getSplashDigits(splash)
-  digits[0] = clamp(digits[0] + randomFrom([0, -1, -1]), 0, 9)
-  digits[1] = clamp(digits[1] + randomFrom([-1, 0, 1]), 0, 9)
-  digits[2] = clamp(digits[2] + randomFrom([-1, 0, 1]), 0, 9)
+  digits[0] = Habitat.clamp(digits[0] + Habitat.randomFrom([0, -1, -1]), 0, 9)
+  digits[1] = Habitat.clamp(digits[1] + Habitat.randomFrom([-1, 0, 1]), 0, 9)
+  digits[2] = Habitat.clamp(digits[2] + Habitat.randomFrom([-1, 0, 1]), 0, 9)
   return parseInt(digits.join(""))
 }
 
 //===========//
 // DIRECTION //
 //===========//
-const DIRECTION = {
+export const DIRECTION = {
   left: {
     name: "left",
     min: "top",
@@ -295,7 +309,7 @@ DIRECTION.right.adjacent = DIRECTION.bottom
 DIRECTION.top.adjacent = DIRECTION.right
 DIRECTION.bottom.adjacent = DIRECTION.left
 
-const AXIS = {
+export const AXIS = {
   x: {
     name: "x",
     min: "top",
@@ -325,8 +339,8 @@ AXIS.y.adjacent = AXIS.x
 //========//
 // GLOBAL //
 //========//
-const global = {
-  world: new World({ colour: GREY }),
+export const global = {
+  world: new World({ colour: Habitat.GREY }),
   camera: new View(),
   image: undefined,
 }
@@ -334,11 +348,11 @@ const global = {
 //===========//
 // GAME LOOP //
 //===========//
-const stage = new Stage({ speed: 2.0, paused: false })
+const stage = new Habitat.Stage({ speed: 2.0, paused: false })
 
 stage.start = (context) => {
   const { canvas } = context
-  canvas.style["background-color"] = VOID
+  canvas.style["background-color"] = Habitat.VOID
 }
 
 stage.resize = (context) => {
@@ -375,7 +389,7 @@ stage.tick = (context) => {
 stage.update = (context) => {
   const { world, image, camera } = global
 
-  shared.clock = wrap(shared.clock + 1, 0, 999)
+  shared.clock = Habitat.wrap(shared.clock + 1, 0, 999)
 
   // Update cells
   for (const cell of world.cells) {
@@ -398,10 +412,10 @@ stage.update = (context) => {
   }
 
   // Place cells with the pointer
-  const pointer = getPointer()
+  const pointer = Habitat.getPointer()
   if (pointer.down) {
     const colour = shared.brush.colour
-    const cell = world.pick(camera.cast(scale(pointer.position, devicePixelRatio)))
+    const cell = world.pick(camera.cast(Habitat.scale(pointer.position, devicePixelRatio)))
     const canWrite = cell && (colour.splash === AIR_SPLASH || cell.colour.splash === AIR_SPLASH)
     if (canWrite) {
       const newCell = recolour(cell, colour)

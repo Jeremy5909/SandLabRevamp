@@ -1,3 +1,33 @@
+var __defProp = Object.defineProperty;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __pow = Math.pow;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
+
 // src/libraries/habitat-embed.ts
 var HabitatFrogasaurus = {};
 {
@@ -9,7 +39,7 @@ var HabitatFrogasaurus = {};
       registerVectorMethods();
     };
     const registerGlobals = () => {
-      Object.assign(window, Habitat2);
+      Object.assign(window, Habitat);
     };
     const registerEverything = () => {
       registerGlobals();
@@ -34,12 +64,12 @@ var HabitatFrogasaurus = {};
   }
   {
     HabitatFrogasaurus["./number.js"] = {};
-    const clamp2 = (number, min, max) => {
+    const clamp = (number, min, max) => {
       if (number < min) return min;
       if (number > max) return max;
       return number;
     };
-    const wrap2 = (number, min, max) => {
+    const wrap = (number, min, max) => {
       const range2 = max - min + 1;
       while (number < min) number += range2;
       while (number > max) number -= range2;
@@ -79,8 +109,8 @@ var HabitatFrogasaurus = {};
           i--;
         }
     };
-    HabitatFrogasaurus["./number.js"].clamp = clamp2;
-    HabitatFrogasaurus["./number.js"].wrap = wrap2;
+    HabitatFrogasaurus["./number.js"].clamp = clamp;
+    HabitatFrogasaurus["./number.js"].wrap = wrap;
     HabitatFrogasaurus["./number.js"].getDigits = getDigits;
     HabitatFrogasaurus["./number.js"].gcd = gcd;
     HabitatFrogasaurus["./number.js"].simplifyRatio = simplifyRatio;
@@ -104,7 +134,7 @@ var HabitatFrogasaurus = {};
   }
   {
     HabitatFrogasaurus["./random.js"] = {};
-    const maxRandomNumberIndex = 2 ** 14;
+    const maxRandomNumberIndex = __pow(2, 14);
     const randomNumbersBuffer = new Uint32Array(maxRandomNumberIndex);
     let randomNumberIndex = Infinity;
     const random = () => {
@@ -116,32 +146,32 @@ var HabitatFrogasaurus = {};
       randomNumberIndex++;
       return result;
     };
-    const randomFrom2 = (array) => {
+    const randomFrom = (array) => {
       const index = random() % array.length;
       return array[index];
     };
-    const oneIn2 = (times) => random() % times < 1;
-    const maybe = (chance) => oneIn2(1 / chance);
+    const oneIn = (times) => random() % times < 1;
+    const maybe = (chance) => oneIn(1 / chance);
     HabitatFrogasaurus["./random.js"].random = random;
-    HabitatFrogasaurus["./random.js"].randomFrom = randomFrom2;
-    HabitatFrogasaurus["./random.js"].oneIn = oneIn2;
+    HabitatFrogasaurus["./random.js"].randomFrom = randomFrom;
+    HabitatFrogasaurus["./random.js"].oneIn = oneIn;
     HabitatFrogasaurus["./random.js"].maybe = maybe;
   }
   {
     HabitatFrogasaurus["./event.js"] = {};
     const fireEvent2 = (name, options = {}) => {
-      const { target = window, bubbles = true, cancelable = true, ...data } = options;
+      const _a = options, { target = window, bubbles = true, cancelable = true } = _a, data = __objRest(_a, ["target", "bubbles", "cancelable"]);
       const event = new Event(name, { bubbles, cancelable });
       for (const key in data) {
         event[key] = data[key];
       }
       target.dispatchEvent(event);
     };
-    const on3 = (event, func, options) => {
+    const on2 = (event, func, options) => {
       return addEventListener(event, func, options);
     };
     HabitatFrogasaurus["./event.js"].fireEvent = fireEvent2;
-    HabitatFrogasaurus["./event.js"].on = on3;
+    HabitatFrogasaurus["./event.js"].on = on2;
   }
   {
     HabitatFrogasaurus["./console.js"] = {};
@@ -277,11 +307,11 @@ var HabitatFrogasaurus = {};
   }
   {
     HabitatFrogasaurus["./vector.js"] = {};
-    const scale3 = (value, scale4) => {
-      if (typeof value === "number") return value * scale4;
-      return value.map((v) => v * scale4);
+    const scale2 = (value, scale3) => {
+      if (typeof value === "number") return value * scale3;
+      return value.map((v) => v * scale3);
     };
-    const add3 = (a, b) => {
+    const add2 = (a, b) => {
       if (typeof a === "number") {
         return a + b;
       }
@@ -382,8 +412,8 @@ var HabitatFrogasaurus = {};
         }
       );
     };
-    HabitatFrogasaurus["./vector.js"].scale = scale3;
-    HabitatFrogasaurus["./vector.js"].add = add3;
+    HabitatFrogasaurus["./vector.js"].scale = scale2;
+    HabitatFrogasaurus["./vector.js"].add = add2;
     HabitatFrogasaurus["./vector.js"].subtract = subtract3;
     HabitatFrogasaurus["./vector.js"].crossProduct = crossProduct2;
     HabitatFrogasaurus["./vector.js"].distanceBetween = distanceBetween;
@@ -392,17 +422,17 @@ var HabitatFrogasaurus = {};
   }
   {
     HabitatFrogasaurus["./lerp.js"] = {};
-    const lerp3 = ([a, b], distance) => {
+    const lerp2 = ([a, b], distance) => {
       const range = subtract2(b, a);
-      const displacement = scale2(range, distance);
-      return add2(a, displacement);
+      const displacement = scale(range, distance);
+      return add(a, displacement);
     };
     const bilerp = ([a, b, c, d], displacement) => {
       const [dx, dy] = displacement;
-      const la = lerp3([a, b], dx);
-      const lb = lerp3([d, c], dx);
+      const la = lerp2([a, b], dx);
+      const lb = lerp2([d, c], dx);
       const line = [la, lb];
-      return lerp3(line, dy);
+      return lerp2(line, dy);
     };
     const ibilerp = ([a, b, c, d], value) => {
       if (typeof value === "number") {
@@ -412,7 +442,7 @@ var HabitatFrogasaurus = {};
       }
       const e = subtract2(b, a);
       const f = subtract2(d, a);
-      const g = add2(subtract2(a, b), subtract2(c, d));
+      const g = add(subtract2(a, b), subtract2(c, d));
       const h = subtract2(value, a);
       const k2 = crossProduct(g, f);
       const k1 = crossProduct(e, f) + crossProduct(h, g);
@@ -433,13 +463,13 @@ var HabitatFrogasaurus = {};
       }
       return [u, v];
     };
-    HabitatFrogasaurus["./lerp.js"].lerp = lerp3;
+    HabitatFrogasaurus["./lerp.js"].lerp = lerp2;
     HabitatFrogasaurus["./lerp.js"].bilerp = bilerp;
     HabitatFrogasaurus["./lerp.js"].ibilerp = ibilerp;
   }
   {
     HabitatFrogasaurus["./array.js"] = {};
-    const shuffleArray2 = (array) => {
+    const shuffleArray = (array) => {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -482,7 +512,7 @@ var HabitatFrogasaurus = {};
       }
       return array;
     };
-    HabitatFrogasaurus["./array.js"].shuffleArray = shuffleArray2;
+    HabitatFrogasaurus["./array.js"].shuffleArray = shuffleArray;
     HabitatFrogasaurus["./array.js"].trimArray = trimArray;
     HabitatFrogasaurus["./array.js"].repeatArray = repeatArray;
   }
@@ -505,7 +535,7 @@ var HabitatFrogasaurus = {};
   }
   {
     HabitatFrogasaurus["./stage.js"] = {};
-    const Stage2 = function(properties) {
+    const Stage = function(properties) {
       const template = struct({
         context: void 0,
         scale: 1,
@@ -542,8 +572,8 @@ var HabitatFrogasaurus = {};
         document.body.appendChild(canvas);
         stage2.context = canvas.getContext("2d");
       }
-      on2("resize", () => resize(stage2));
-      on2(keyDown(" "), () => stage2.paused = !stage2.paused);
+      on("resize", () => resize(stage2));
+      on(keyDown(" "), () => stage2.paused = !stage2.paused);
       stage2.start(stage2.context);
       resize(stage2);
       tick(stage2);
@@ -584,14 +614,14 @@ var HabitatFrogasaurus = {};
       }
       requestAnimationFrame(() => tick(stage2));
     };
-    HabitatFrogasaurus["./stage.js"].Stage = Stage2;
+    HabitatFrogasaurus["./stage.js"].Stage = Stage;
   }
   {
     HabitatFrogasaurus["./async.js"] = {};
-    const sleep = (duration) => {
+    const sleep2 = (duration) => {
       new Promise((resolve) => setTimeout(resolve, duration));
     };
-    HabitatFrogasaurus["./async.js"].sleep = sleep;
+    HabitatFrogasaurus["./async.js"].sleep = sleep2;
   }
   {
     HabitatFrogasaurus["./pointer.js"] = {};
@@ -600,7 +630,7 @@ var HabitatFrogasaurus = {};
       position: [void 0, void 0],
       down: void 0
     };
-    const getPointer2 = () => {
+    const getPointer = () => {
       if (isPointerTracked) return pointer2;
       isPointerTracked = true;
       addEventListener("pointermove", (e) => {
@@ -619,7 +649,7 @@ var HabitatFrogasaurus = {};
       });
       return pointer2;
     };
-    HabitatFrogasaurus["./pointer.js"].getPointer = getPointer2;
+    HabitatFrogasaurus["./pointer.js"].getPointer = getPointer;
   }
   {
     HabitatFrogasaurus["./keyboard.js"] = {};
@@ -628,10 +658,10 @@ var HabitatFrogasaurus = {};
     const getKeyboard = () => {
       if (isKeyboardTracked) return keyboard;
       isKeyboardTracked = true;
-      on2("keydown", (e) => {
+      on("keydown", (e) => {
         keyboard[e.key] = true;
       });
-      on2("keyup", (e) => {
+      on("keyup", (e) => {
         keyboard[e.key] = false;
       });
       return keyboard;
@@ -640,7 +670,7 @@ var HabitatFrogasaurus = {};
     const keyDown2 = (key) => {
       if (!isKeyDownTracked) {
         isKeyDownTracked = true;
-        on2("keydown", (e) => fireEvent(`keyDown("${e.key}")`), { passive: false });
+        on("keydown", (e) => fireEvent(`keyDown("${e.key}")`), { passive: false });
       }
       return `keyDown("${key}")`;
     };
@@ -648,7 +678,7 @@ var HabitatFrogasaurus = {};
     const keyUp = (key) => {
       if (!isKeyUpTracked) {
         isKeyUpTracked = true;
-        on2("keyup", (e) => fireEvent(`keyUp("${e.key}")`), { passive: false });
+        on("keyup", (e) => fireEvent(`keyUp("${e.key}")`), { passive: false });
       }
       return `keyUp("${key}")`;
     };
@@ -659,7 +689,7 @@ var HabitatFrogasaurus = {};
   {
     HabitatFrogasaurus["./struct.js"] = {};
     const struct2 = (parameters) => function(args) {
-      return { ...parameters, ...args };
+      return __spreadValues(__spreadValues({}, parameters), args);
     };
     HabitatFrogasaurus["./struct.js"].struct = struct2;
   }
@@ -691,7 +721,7 @@ var HabitatFrogasaurus = {};
         return `#${red}${green}${blue}${alpha}`;
       }
     };
-    const Splash2 = class extends Colour {
+    const Splash = class extends Colour {
       constructor(number) {
         const wrappedNumber = wrapSplashNumber(number);
         const [hundreds, tens, ones] = getThreeDigits(wrappedNumber, 3);
@@ -725,41 +755,41 @@ var HabitatFrogasaurus = {};
     const RED_SPLASH_VALUES = [23, 55, 70, 98, 128, 159, 174, 204, 242, 255];
     const GREEN_SPLASH_VALUES = [29, 67, 98, 128, 159, 174, 204, 222, 245, 255];
     const BLUE_SPLASH_VALUES = [40, 70, 98, 128, 159, 174, 204, 222, 247, 255];
-    const VOID2 = new Colour(6, 7, 10);
-    const BLACK2 = new Splash2(0);
-    const GREY2 = new Splash2(112);
-    const SILVER2 = new Splash2(556);
-    const WHITE = new Splash2(999);
-    const GREEN2 = new Splash2(293);
-    const CYAN = new Splash2(269);
-    const BLUE2 = new Splash2(239);
-    const PURPLE2 = new Splash2(418);
-    const PINK = new Splash2(937);
-    const CORAL = new Splash2(933);
-    const RED2 = new Splash2(911);
-    const ORANGE = new Splash2(931);
-    const YELLOW2 = new Splash2(991);
-    const HUES = [GREEN2, CYAN, BLUE2, PURPLE2, PINK, CORAL, RED2, ORANGE, YELLOW2];
-    const SHADES = [VOID2, BLACK2, GREY2, SILVER2, WHITE];
+    const VOID = new Colour(6, 7, 10);
+    const BLACK = new Splash(0);
+    const GREY = new Splash(112);
+    const SILVER = new Splash(556);
+    const WHITE = new Splash(999);
+    const GREEN = new Splash(293);
+    const CYAN = new Splash(269);
+    const BLUE = new Splash(239);
+    const PURPLE = new Splash(418);
+    const PINK = new Splash(937);
+    const CORAL = new Splash(933);
+    const RED = new Splash(911);
+    const ORANGE = new Splash(931);
+    const YELLOW = new Splash(991);
+    const HUES = [GREEN, CYAN, BLUE, PURPLE, PINK, CORAL, RED, ORANGE, YELLOW];
+    const SHADES = [VOID, BLACK, GREY, SILVER, WHITE];
     const COLOURS = [...SHADES, ...HUES];
     HabitatFrogasaurus["./colour.js"].Colour = Colour;
-    HabitatFrogasaurus["./colour.js"].Splash = Splash2;
+    HabitatFrogasaurus["./colour.js"].Splash = Splash;
     HabitatFrogasaurus["./colour.js"].showColour = showColour;
     HabitatFrogasaurus["./colour.js"].registerColourMethods = registerColourMethods2;
-    HabitatFrogasaurus["./colour.js"].VOID = VOID2;
-    HabitatFrogasaurus["./colour.js"].BLACK = BLACK2;
-    HabitatFrogasaurus["./colour.js"].GREY = GREY2;
-    HabitatFrogasaurus["./colour.js"].SILVER = SILVER2;
+    HabitatFrogasaurus["./colour.js"].VOID = VOID;
+    HabitatFrogasaurus["./colour.js"].BLACK = BLACK;
+    HabitatFrogasaurus["./colour.js"].GREY = GREY;
+    HabitatFrogasaurus["./colour.js"].SILVER = SILVER;
     HabitatFrogasaurus["./colour.js"].WHITE = WHITE;
-    HabitatFrogasaurus["./colour.js"].GREEN = GREEN2;
+    HabitatFrogasaurus["./colour.js"].GREEN = GREEN;
     HabitatFrogasaurus["./colour.js"].CYAN = CYAN;
-    HabitatFrogasaurus["./colour.js"].BLUE = BLUE2;
-    HabitatFrogasaurus["./colour.js"].PURPLE = PURPLE2;
+    HabitatFrogasaurus["./colour.js"].BLUE = BLUE;
+    HabitatFrogasaurus["./colour.js"].PURPLE = PURPLE;
     HabitatFrogasaurus["./colour.js"].PINK = PINK;
     HabitatFrogasaurus["./colour.js"].CORAL = CORAL;
-    HabitatFrogasaurus["./colour.js"].RED = RED2;
+    HabitatFrogasaurus["./colour.js"].RED = RED;
     HabitatFrogasaurus["./colour.js"].ORANGE = ORANGE;
-    HabitatFrogasaurus["./colour.js"].YELLOW = YELLOW2;
+    HabitatFrogasaurus["./colour.js"].YELLOW = YELLOW;
     HabitatFrogasaurus["./colour.js"].HUES = HUES;
     HabitatFrogasaurus["./colour.js"].SHADES = SHADES;
     HabitatFrogasaurus["./colour.js"].COLOURS = COLOURS;
@@ -781,17 +811,17 @@ var HabitatFrogasaurus = {};
     const getMouse = () => {
       if (isMouseTracked) return mouse;
       isMouseTracked = true;
-      on2("mousemove", (e) => {
+      on("mousemove", (e) => {
         mouse.position[0] = e.clientX;
         mouse.position[1] = e.clientY;
       });
-      on2("mousedown", (e) => {
+      on("mousedown", (e) => {
         mouse.position[0] = e.clientX;
         mouse.position[1] = e.clientY;
         const buttonName = buttonNames[e.button];
         mouse[buttonName] = true;
       });
-      on2("mouseup", (e) => {
+      on("mouseup", (e) => {
         mouse.position[0] = e.clientX;
         mouse.position[1] = e.clientY;
         const buttonName = buttonNames[e.button];
@@ -804,7 +834,7 @@ var HabitatFrogasaurus = {};
       const button = buttonNames.indexOf(buttonName);
       if (!isMouseDownTracked) {
         isMouseDownTracked = true;
-        on2("mousedown", (e) => fireEvent(`mouseDown("${e.button}")`), { passive: false });
+        on("mousedown", (e) => fireEvent(`mouseDown("${e.button}")`), { passive: false });
       }
       return `mouseDown("${button}")`;
     };
@@ -813,7 +843,7 @@ var HabitatFrogasaurus = {};
       const button = buttonNames.indexOf(buttonName);
       if (!isMouseUpTracked) {
         isMouseUpTracked = true;
-        on2("mouseup", (e) => fireEvent(`mouseUp("${e.button}")`), { passive: false });
+        on("mouseup", (e) => fireEvent(`mouseUp("${e.button}")`), { passive: false });
       }
       return `mouseUp("${button}")`;
     };
@@ -845,11 +875,11 @@ var HabitatFrogasaurus = {};
           easeOut,
           ratio: 1 - ratio
         });
-        return lerp2([start, end], interpolation);
+        return lerp([start, end], interpolation);
       });
     };
     const ease = (t, { easeIn, easeOut, ratio }) => {
-      const f = (t2, slope) => t2 ** (1 + slope);
+      const f = (t2, slope) => __pow(t2, 1 + slope);
       return f(t * ratio * 2, easeIn) / (f(t * ratio * 2, easeIn) + f((1 - t) * (1 - ratio) * 2, easeOut));
     };
     HabitatFrogasaurus["./tween.js"].tween = tween;
@@ -861,7 +891,7 @@ var HabitatFrogasaurus = {};
     const getTouches = () => {
       if (!isTouchTracked) {
         isTouchTracked = true;
-        on2("touchstart", (e) => {
+        on("touchstart", (e) => {
           for (const changedTouch of e.changedTouches) {
             const id = changedTouch.identifier;
             if (touches[id] === void 0) {
@@ -872,7 +902,7 @@ var HabitatFrogasaurus = {};
             touch.position[1] = changedTouch.clientY;
           }
         });
-        on2("touchmove", (e) => {
+        on("touchmove", (e) => {
           for (const changedTouch of e.changedTouches) {
             const id = changedTouch.identifier;
             const touch = touches[id];
@@ -880,7 +910,7 @@ var HabitatFrogasaurus = {};
             touch.position[1] = changedTouch.clientY;
           }
         });
-        on2("touchend", (e) => {
+        on("touchend", (e) => {
           for (const changedTouch of e.changedTouches) {
             const id = changedTouch.identifier;
             touches[id] = void 0;
@@ -900,14 +930,14 @@ var HabitatFrogasaurus = {};
   }
   const { registerColourMethods } = HabitatFrogasaurus["./colour.js"];
   const { registerDebugMethods } = HabitatFrogasaurus["./console.js"];
-  const { registerVectorMethods, add: add2, crossProduct, scale: scale2, subtract: subtract2 } = HabitatFrogasaurus["./vector.js"];
+  const { registerVectorMethods, add, crossProduct, scale, subtract: subtract2 } = HabitatFrogasaurus["./vector.js"];
   const { defineGetter, defineAccessor } = HabitatFrogasaurus["./property.js"];
   const { struct } = HabitatFrogasaurus["./struct.js"];
   const { keyDown } = HabitatFrogasaurus["./keyboard.js"];
-  const { on: on2, fireEvent } = HabitatFrogasaurus["./event.js"];
-  const { lerp: lerp2 } = HabitatFrogasaurus["./lerp.js"];
+  const { on, fireEvent } = HabitatFrogasaurus["./event.js"];
+  const { lerp } = HabitatFrogasaurus["./lerp.js"];
 }
-var Habitat2 = {
+var Habitat = {
   registerMethods: HabitatFrogasaurus["./habitat.js"].registerMethods,
   registerGlobals: HabitatFrogasaurus["./habitat.js"].registerGlobals,
   registerEverything: HabitatFrogasaurus["./habitat.js"].registerEverything,
@@ -984,30 +1014,375 @@ var Habitat2 = {
   $$: HabitatFrogasaurus["./document.js"].$$
 };
 
-// src/element.js
-var ELEMENTS2 = /* @__PURE__ */ new Map();
-var pointer = getPointer();
-on(
-  "keydown",
-  (event) => {
-    for (const [splash, element] of ELEMENTS2) {
-      if (element.key.includes(event.key)) {
-        shared.brush.colour = new Splash(splash).d;
-        return;
+// src/libraries/camera.ts
+var View = class {
+  constructor(options = {}) {
+    Object.assign(this, __spreadValues({
+      position: [0, 0],
+      dimensions: [1, 1]
+    }, options));
+  }
+  // world position -> view position
+  cast(position) {
+    const [x, y] = Habitat.add(position, this.position);
+    const [width, height] = this.dimensions;
+    return [x / width, y / height];
+  }
+  // view position -> world position
+  get(position) {
+    const [x, y] = position;
+    const [width, height] = this.dimensions;
+    return Habitat.subtract([x * width, y * height], this.position);
+  }
+  // World position at center of view
+  getCenter() {
+    return this.get([0.5, 0.5]);
+  }
+  // World bounds of the view
+  getBounds() {
+    const a = this.position;
+    const b = Habitat.add(this.position, this.dimensions);
+    return {
+      left: Math.min(a[0], b[0]),
+      right: Math.max(a[0], b[0]),
+      top: Math.min(a[1], b[1]),
+      bottom: Math.max(a[1], b[1])
+    };
+  }
+  // Pan the view by a given amount
+  pan(displacement) {
+    this.position = Habitat.add(this.position, displacement);
+  }
+  // Zoom the view by a given amount, centered at a given point
+  zoom(scale, center = this.getCenter()) {
+    const [x, y] = this.position;
+    const [width, height] = this.dimensions;
+    this.position = Habitat.add(this.position, multiply(subtract(center, this.position), 1 - scale));
+    this.dimensions = multiply([width, height], scale);
+  }
+  // Is a given world position within the view?
+  contains(position) {
+    const { left, right, top, bottom } = this.getBounds();
+    const [x, y] = position;
+    return x >= left && x <= right && y >= top && y <= bottom;
+  }
+  resize(dimensions) {
+    this.dimensions = dimensions;
+  }
+};
+
+// src/elements.ts
+var ELEMENTS = /* @__PURE__ */ new Map();
+
+// src/sugar.ts
+var split = (cell, [rows, columns]) => {
+  const { left, right, top, bottom } = cell.bounds;
+  const [width, height] = cell.dimensions;
+  const splitWidth = width / columns;
+  const splitHeight = height / rows;
+  const cells = [];
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < columns; j++) {
+      const splitCell = new Cell({
+        bounds: {
+          left: left + j * splitWidth,
+          top: top + i * splitHeight,
+          right: right - (columns - j - 1) * splitWidth,
+          bottom: bottom - (rows - i - 1) * splitHeight
+        },
+        colour: cell.colour
+      });
+      cells.push(splitCell);
+    }
+  }
+  return cells;
+};
+var chop = (cell, axis, targets) => {
+  if (targets.length === 0) {
+    return [cell];
+  }
+  const direction = AXIS[axis];
+  targets = targets.sort((a, b) => a - b).filter((v, i) => {
+    const previous = targets[i - 1];
+    return previous === void 0 || v !== previous;
+  });
+  const cells = [];
+  let currentTarget = cell.bounds[direction.min];
+  for (let i = 0; i <= targets.length; i++) {
+    const target = targets[i] || cell.bounds[direction.max];
+    if (target === currentTarget) {
+      continue;
+    }
+    const bounds = {
+      [direction.min]: currentTarget,
+      [direction.max]: target,
+      [direction.adjacent.min]: cell.bounds[direction.adjacent.min],
+      [direction.adjacent.max]: cell.bounds[direction.adjacent.max]
+    };
+    const choppedCell = new Cell({
+      bounds,
+      colour: cell.colour
+    });
+    cells.push(choppedCell);
+    currentTarget = target;
+  }
+  return cells;
+};
+var merge = (cells, colour = cells[0].colour) => {
+  if (cells.length === 0) {
+    throw new Error("Cannot merge 0 cells");
+  }
+  let left = Infinity;
+  let top = Infinity;
+  let right = -Infinity;
+  let bottom = -Infinity;
+  for (const cell of cells) {
+    const { bounds } = cell;
+    left = Math.min(left, bounds.left);
+    top = Math.min(top, bounds.top);
+    right = Math.max(right, bounds.right);
+    bottom = Math.max(bottom, bounds.bottom);
+  }
+  return new Cell({
+    colour,
+    bounds: {
+      left,
+      top,
+      right,
+      bottom
+    }
+  });
+};
+var reposition = (cell, bounds) => {
+  return new Cell({
+    colour: cell.colour,
+    bounds: __spreadValues(__spreadValues({}, cell.bounds), bounds)
+  });
+};
+var recolour = (cell, colour) => {
+  return new Cell({
+    colour,
+    bounds: cell.bounds
+  });
+};
+var pickContacts = (cell, world, edge = "right") => {
+  const { bounds } = cell;
+  const direction = DIRECTION[edge];
+  const opposite = direction.opposite;
+  const oppositeEdge = opposite.name;
+  const front = bounds[edge];
+  const min = bounds[direction.min];
+  const max = bounds[direction.max];
+  const cache = world.caches[oppositeEdge];
+  const set = cache.get(front);
+  if (set === void 0) {
+    return [];
+  }
+  const cells = [];
+  for (const other of set) {
+    const otherMin = other.bounds[direction.min];
+    const otherMax = other.bounds[direction.max];
+    if (otherMin >= max || otherMax <= min) {
+      continue;
+    }
+    cells.push(other);
+  }
+  return cells;
+};
+var snipContacts = (cell, contacts, edge, reach = Infinity) => {
+  const direction = DIRECTION[edge];
+  const opposite = direction.opposite;
+  const adjacent = direction.adjacent;
+  const oppositeEdge = opposite.name;
+  const contactReach = Math.min(reach, ...contacts.map((contact) => contact.dimensions[adjacent.dimensionNumber]));
+  const signedReach = contactReach * direction.sign;
+  const sizeds = [];
+  const excesses = [];
+  for (const contact of contacts) {
+    const { bounds } = contact;
+    const chops = chop(contact, direction.adjacent.axis, [bounds[oppositeEdge] + signedReach]);
+    if (direction.sign === 1) {
+      const [sized, excess] = chops;
+      sizeds.push(sized);
+      if (excess !== void 0) {
+        excesses.push(excess);
+      }
+    } else {
+      const [head, tail] = chops;
+      if (tail !== void 0) {
+        sizeds.push(tail);
+        excesses.push(head);
+      } else {
+        sizeds.push(head);
       }
     }
-  },
-  { passive: false }
-);
-var FALL_SPEED2 = 1 / 128;
-var MIN_SIZE2 = 1 / 256;
-var POINTER_CELL_SIZE = 1 / 4;
-var AIR_TARGET = 1 / 32;
-var SOLID2 = /* @__PURE__ */ new Set([YELLOW.splash, GREEN.splash, SILVER.splash]);
+  }
+  const cellMin = cell.bounds[direction.min];
+  const cellMax = cell.bounds[direction.max];
+  const snips = [];
+  for (let sized of sizeds) {
+    const sizedMin = sized.bounds[direction.min];
+    if (sizedMin < cellMin) {
+      const [excess, snip] = chop(sized, direction.axis, [cellMin]);
+      sized = snip;
+      excesses.push(excess);
+    }
+    const sizedMax = sized.bounds[direction.max];
+    if (sizedMax > cellMax) {
+      const [snip, excess] = chop(sized, direction.axis, [cellMax]);
+      sized = snip;
+      excesses.push(excess);
+    }
+    snips.push(sized);
+  }
+  return [snips, excesses, contactReach];
+};
+var pickSnips = (cell, world, edge, reach) => {
+  const contacts = pickContacts(cell, world, edge);
+  const [snips, excesses, maxReach] = snipContacts(cell, contacts, edge, reach);
+  return { contacts, snips, excesses, reach: maxReach };
+};
+var swapSnips = (cell, snips, edge) => {
+  const direction = DIRECTION[edge];
+  const adjacent = direction.adjacent;
+  const opposite = direction.opposite;
+  const oppositeEdge = opposite.name;
+  const cellSize = cell.dimensions[adjacent.dimensionNumber];
+  const front = snips[0].bounds[edge];
+  const back = cell.bounds[oppositeEdge];
+  const middle = front - cellSize * direction.sign;
+  const newCell = reposition(cell, {
+    [edge]: direction.sign === 1 ? front : front,
+    [oppositeEdge]: direction.sign === 1 ? middle : middle
+  });
+  const newSnips = [];
+  for (const snip of snips) {
+    const newSnip = reposition(snip, {
+      [oppositeEdge]: direction.sign === 1 ? back : back,
+      [edge]: direction.sign === 1 ? middle : middle
+    });
+    newSnips.push(newSnip);
+  }
+  return [newCell, ...newSnips];
+};
+var defaultJudge = (cells) => {
+  const areas = cells.map((cell) => cell.dimensions[0] * cell.dimensions[1]);
+  const maxArea = Math.max(...areas);
+  return maxArea;
+};
+var defaultCompare = (a, b = -Infinity) => a > b;
+var defaultFilter = (cell) => {
+  const age = shared.clock - cell.birth;
+  return age > 0;
+};
+var tryToSleep = (cell, world, { edges = Object.keys(DIRECTION), judge = defaultJudge, compare = defaultCompare, filter = defaultFilter } = {}) => {
+  let winner = void 0;
+  let highScore = void 0;
+  for (const edge of Habitat.shuffleArray(edges)) {
+    const replacement = sleep(cell, world, edge, filter);
+    const { oldCells: oldCells2, newCells: newCells2 } = replacement;
+    if (newCells2.length === 0) continue;
+    const newScore = judge(newCells2);
+    const oldScore = judge(oldCells2);
+    if (compare(newScore, oldScore) && compare(newScore, highScore)) {
+      highScore = newScore;
+      winner = replacement;
+    }
+  }
+  if (winner === void 0) {
+    return [];
+  }
+  const { oldCells, newCells } = winner;
+  return world.replace(oldCells, newCells);
+};
+var equals = (a, b) => {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+};
+var move = (cell, world, edge, speed, minSize = 0) => {
+  const direction = DIRECTION[edge];
+  const below = pickSnips(cell, world, edge, speed);
+  if (below.snips.length === 0) {
+    return [];
+  }
+  const water = cell;
+  if (below.snips.every((c) => !SOLID.has(c.colour.splash) && c.colour.splash !== cell.splash)) {
+    const movedCells = swapSnips(water, below.snips, edge);
+    return [
+      [cell, ...below.contacts],
+      [...below.excesses, ...movedCells]
+    ];
+  }
+  const gaps = below.snips.filter((c) => !SOLID.has(c.colour.splash) && c.colour.splash !== cell.splash);
+  if (gaps.length > 0) {
+    const targets = gaps.map((v) => [v.bounds[direction.min], v.bounds[direction.max]]).flat();
+    const pieces = chop(water, direction.axis, targets);
+    for (const piece of pieces) {
+      if (water.dimensions[direction.dimensionNumber] >= minSize && piece.dimensions[direction.dimensionNumber] <= minSize) {
+        return [];
+      }
+    }
+    3;
+    return [[water], [...pieces]];
+  }
+  return [];
+};
+var sleep = (cell, world, edge, filter) => {
+  const failure = { oldCells: [], newCells: [] };
+  const direction = DIRECTION[edge];
+  const contacts = pickContacts(cell, world, edge).filter(filter);
+  if (contacts.length === 0) {
+    return failure;
+  }
+  const candidates = Habitat.shuffleArray(contacts);
+  const splitCandidates = [];
+  for (const candidate of candidates) {
+    if (!equals(candidate.colour, cell.colour)) {
+      continue;
+    }
+    if (candidate.bounds[direction.min] === cell.bounds[direction.min] && candidate.bounds[direction.max] === cell.bounds[direction.max]) {
+      const newCells = [merge([cell, candidate])];
+      const oldCells = [cell, candidate];
+      return { oldCells, newCells };
+    }
+    if (candidate.bounds[direction.min] > cell.bounds[direction.min] || candidate.bounds[direction.max] < cell.bounds[direction.max]) {
+      continue;
+    }
+    splitCandidates.push(candidate);
+  }
+  for (const candidate of splitCandidates) {
+    const targets = [];
+    let mergeIndex = 0;
+    if (candidate.bounds[direction.min] < cell.bounds[direction.min]) {
+      targets.push(cell.bounds[direction.min]);
+      mergeIndex = 1;
+    }
+    if (candidate.bounds[direction.max] > cell.bounds[direction.max]) {
+      targets.push(cell.bounds[direction.max]);
+    }
+    const splitCells = chop(candidate, direction.axis, targets);
+    const mergedCell = merge([cell, splitCells[mergeIndex]]);
+    const oldCells = [cell, candidate];
+    const newCells = [mergedCell, ...splitCells.filter((c, i) => i !== mergeIndex)];
+    return { oldCells, newCells };
+  }
+  return failure;
+};
+var distanceToBounds = (point, bounds) => {
+  const { x, y } = point;
+  const { left, right, top, bottom } = bounds;
+  const dx = Math.max(left - x, 0, x - right);
+  const dy = Math.max(top - y, 0, y - bottom);
+  return Math.sqrt(dx * dx + dy * dy);
+};
 
-// src/elements/air.js
-var AIR_SPLASH2 = GREY.splash;
-ELEMENTS.set(AIR_SPLASH2, {
+// src/elements/air.ts
+var AIR_SPLASH = Habitat.GREY.splash;
+ELEMENTS.set(AIR_SPLASH, {
   name: "Air",
   key: ["0"],
   update: (cell, world) => {
@@ -1068,150 +1443,25 @@ ELEMENTS.set(AIR_SPLASH2, {
   }
 });
 
-// src/elements/fire.js
-ELEMENTS.set(RED.splash, {
-  name: "Fire",
-  key: ["f", "3"],
-  update: (cell, world) => {
-    if (oneIn(200)) {
-      return world.replace([cell], [recolour(cell, GREY)]);
-    }
-    const movements = move(cell, world, randomFrom(["left", "right", "top"]), FALL_SPEED);
-    if (movements.length > 0) {
-      return world.replace(...movements);
-    }
-    return tryToSleep(cell, world, { filter: () => true });
-  }
-});
-
-// src/elements/plant.js
-ELEMENTS.set(GREEN.splash, {
-  name: "Plant",
-  key: ["p", "5"],
-  update: (cell, world) => {
-    const allContacts = [
-      ...pickContacts(cell, world, "top"),
-      ...pickContacts(cell, world, "bottom"),
-      ...pickContacts(cell, world, "left"),
-      ...pickContacts(cell, world, "right")
-    ];
-    const changed = [];
-    for (const contact of allContacts) {
-      if (contact.colour.splash === BLUE.splash) {
-        const recoloured = recolour(contact, GREEN);
-        changed.push(...world.replace([contact], [recoloured]));
-      }
-    }
-    return changed;
-  }
-});
-
-// src/elements/sand.js
-ELEMENTS.set(YELLOW.splash, {
-  name: "Sand",
-  key: ["s", "1"],
-  update: (cell, world) => {
-    const movements = move(cell, world, "bottom", FALL_SPEED);
-    if (movements.length > 0) {
-      return world.replace(...movements);
-    }
-    if (cell.dimensions[1] > MIN_SIZE) {
-      const [above, me] = split(cell, [2, 1]);
-      const splitReplacements = [[cell], [above, me]];
-      const slideDirection = randomFrom(["left", "right"]);
-      const movements2 = move(above, world, slideDirection, FALL_SPEED);
-      if (movements2.length > 0) {
-        const splittings = world.replace(...splitReplacements);
-        const movings = world.replace(...movements2);
-        return [...splittings, ...movings];
-      }
-    }
-    return tryToSleep(cell, world);
-  }
-});
-
-// src/elements/stone.js
-ELEMENTS.set(SILVER.splash, {
-  name: "Stone",
-  key: ["t", "4"],
-  update: (cell, world) => {
-    const movements = move(cell, world, "bottom", FALL_SPEED);
-    if (movements.length > 0) {
-      return world.replace(...movements);
-    }
-    return tryToSleep(cell, world);
-  }
-});
-
-// src/elements/water.js
-ELEMENTS.set(BLUE.splash, {
-  name: "Water",
-  key: ["w", "2"],
-  update: (cell, world) => {
-    const movements = move(cell, world, "bottom", FALL_SPEED);
-    if (movements.length > 0) {
-      return world.replace(...movements);
-    }
-    const slideDirection = randomFrom(["left", "right"]);
-    const slides = move(cell, world, slideDirection, FALL_SPEED, MIN_SIZE / 2);
-    if (slides.length > 0) {
-      return world.replace(...slides);
-    }
-    return tryToSleep(cell, world, { filter: () => true });
-  }
-});
-
-// src/elements/acid.js
-ELEMENTS.set(PURPLE.splash, {
-  name: "Acid",
-  key: ["a", "6"],
-  update: (cell, world) => {
-    const allContacts = [
-      ...pickContacts(cell, world, "top"),
-      ...pickContacts(cell, world, "bottom"),
-      ...pickContacts(cell, world, "left"),
-      ...pickContacts(cell, world, "right")
-    ];
-    const changed = [];
-    for (const contact of allContacts) {
-      if (contact.colour.splash !== PURPLE.splash) {
-        const recoloured = recolour(contact, GREY);
-        changed.push(...world.replace([contact], [recoloured]));
-      }
-    }
-    const movements = move(cell, world, "bottom", FALL_SPEED);
-    if (movements.length > 0) {
-      return world.replace(...movements);
-    }
-    const slideDirection = randomFrom(["left", "right"]);
-    const slides = move(cell, world, slideDirection, FALL_SPEED, MIN_SIZE / 2);
-    if (slides.length > 0) {
-      return world.replace(...slides);
-    }
-    return tryToSleep(cell, world, { filter: () => true });
-  }
-});
-
-// src/script.js
-var shared2 = {
+// src/script.ts
+var shared = {
   clock: 0,
   brush: {
-    colour: YELLOW
+    colour: Habitat.YELLOW
   }
 };
-var Cell2 = class {
+var Cell = class {
   constructor(options = {}) {
-    Object.assign(this, {
+    Object.assign(this, __spreadValues({
       bounds: {
         left: 0,
         right: 1,
         top: 0,
         bottom: 1
       },
-      colour: BLACK,
-      ...options
-    });
-    this.birth = shared2.clock;
+      colour: Habitat.BLACK
+    }, options));
+    this.birth = shared.clock;
     this.splash = this.colour.splash;
     const x = this.bounds.left;
     const y = this.bounds.top;
@@ -1246,12 +1496,12 @@ var Cell2 = class {
   }
   clear(image) {
     const { colour } = this;
-    this.colour = VOID;
+    this.colour = Habitat.VOID;
     this.draw(image);
     this.colour = colour;
   }
   draw(image) {
-    const [x, y] = [this.position.x * image.width, this.position.y * image.height];
+    const [x, y] = [this.position[0] * image.width, this.position[1] * image.height];
     const [width, height] = [this.dimensions[0] * image.width, this.dimensions[1] * image.height];
     const left = Math.floor(x);
     const right = Math.floor(x + width);
@@ -1273,7 +1523,7 @@ var Cell2 = class {
     for (let y2 = top; y2 <= bottom; y2++) {
       for (let x2 = left; x2 <= right; x2++) {
         const isBorder = BORDER_WIDTH > 0 && (x2 < left + BORDER_WIDTH || x2 > right - BORDER_WIDTH || y2 < top + BORDER_WIDTH || y2 > bottom - BORDER_WIDTH);
-        const colour = isBorder ? VOID : fillColour;
+        const colour = isBorder ? Habitat.VOID : fillColour;
         image.data[i + 0] = colour[0];
         image.data[i + 1] = colour[1];
         image.data[i + 2] = colour[2];
@@ -1292,7 +1542,7 @@ var setImageAlpha = (image, alpha) => {
   }
 };
 var World = class {
-  constructor({ colour = BLACK } = {}) {
+  constructor({ colour = Habitat.BLACK } = {}) {
     this.cells = /* @__PURE__ */ new Set();
     this.caches = {
       left: /* @__PURE__ */ new Map(),
@@ -1300,7 +1550,7 @@ var World = class {
       top: /* @__PURE__ */ new Map(),
       bottom: /* @__PURE__ */ new Map()
     };
-    this.add(new Cell2({ colour }));
+    this.add(new Cell({ colour }));
   }
   add(cell) {
     this.cells.add(cell);
@@ -1311,7 +1561,7 @@ var World = class {
     this.uncache(cell);
   }
   cache(cell) {
-    for (const key in DIRECTION2) {
+    for (const key in DIRECTION) {
       const cache = this.caches[key];
       const address = cell.bounds[key];
       let set = cache.get(address);
@@ -1323,7 +1573,7 @@ var World = class {
     }
   }
   uncache(cell) {
-    for (const key in DIRECTION2) {
+    for (const key in DIRECTION) {
       const cache = this.caches[key];
       const address = cell.bounds[key];
       const set = cache.get(address);
@@ -1343,7 +1593,7 @@ var World = class {
       this.delete(cell);
     }
     for (const newCell of newCells) {
-      newCell.birth = shared2.clock;
+      newCell.birth = shared.clock;
       this.add(newCell);
     }
     return newCells;
@@ -1359,7 +1609,7 @@ var World = class {
     }
   }
 };
-var DIRECTION2 = {
+var DIRECTION = {
   left: {
     name: "left",
     min: "top",
@@ -1393,15 +1643,15 @@ var DIRECTION2 = {
     sign: 1
   }
 };
-DIRECTION2.left.opposite = DIRECTION2.right;
-DIRECTION2.right.opposite = DIRECTION2.left;
-DIRECTION2.top.opposite = DIRECTION2.bottom;
-DIRECTION2.bottom.opposite = DIRECTION2.top;
-DIRECTION2.left.adjacent = DIRECTION2.top;
-DIRECTION2.right.adjacent = DIRECTION2.bottom;
-DIRECTION2.top.adjacent = DIRECTION2.right;
-DIRECTION2.bottom.adjacent = DIRECTION2.left;
-var AXIS2 = {
+DIRECTION.left.opposite = DIRECTION.right;
+DIRECTION.right.opposite = DIRECTION.left;
+DIRECTION.top.opposite = DIRECTION.bottom;
+DIRECTION.bottom.opposite = DIRECTION.top;
+DIRECTION.left.adjacent = DIRECTION.top;
+DIRECTION.right.adjacent = DIRECTION.bottom;
+DIRECTION.top.adjacent = DIRECTION.right;
+DIRECTION.bottom.adjacent = DIRECTION.left;
+var AXIS = {
   x: {
     name: "x",
     min: "top",
@@ -1419,44 +1669,44 @@ var AXIS2 = {
     sign: 1
   }
 };
-AXIS2.x.opposite = AXIS2.x;
-AXIS2.y.opposite = AXIS2.y;
-AXIS2.x.adjacent = AXIS2.y;
-AXIS2.y.adjacent = AXIS2.x;
+AXIS.x.opposite = AXIS.x;
+AXIS.y.opposite = AXIS.y;
+AXIS.x.adjacent = AXIS.y;
+AXIS.y.adjacent = AXIS.x;
 var global = {
-  world: new World({ colour: GREY }),
+  world: new World({ colour: Habitat.GREY }),
   camera: new View(),
   image: void 0
 };
-var stage = new Stage({ speed: 2, paused: false });
+var stage = new Habitat.Stage({ speed: 2, paused: false });
 stage.start = (context) => {
   const { canvas } = context;
-  canvas.style["background-color"] = VOID;
+  canvas.style["background-color"] = Habitat.VOID;
 };
 stage.resize = (context) => {
-  const { world, camera: camera2 } = global;
+  const { world, camera } = global;
   const { canvas } = context;
   const size = Math.min(canvas.width, canvas.height);
-  camera2.resize([size, size]);
+  camera.resize([size, size]);
   const image = context.createImageData(size, size);
   setImageAlpha(image, 255);
   global.image = image;
   world.draw(image);
-  const [x, y] = camera2.get([0, 0]);
+  const [x, y] = camera.get([0, 0]);
   context.putImageData(image, x, y);
 };
 stage.tick = (context) => {
   const { canvas } = context;
-  const { image, camera: camera2 } = global;
-  const [x, y] = camera2.get([0, 0]);
+  const { image, camera } = global;
+  const [x, y] = camera.get([0, 0]);
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.putImageData(image, x, y);
 };
 stage.update = (context) => {
-  const { world, image, camera: camera2 } = global;
-  shared2.clock = wrap(shared2.clock + 1, 0, 999);
+  const { world, image, camera } = global;
+  shared.clock = Habitat.wrap(shared.clock + 1, 0, 999);
   for (const cell of world.cells) {
-    if (cell.birth === shared2.clock) {
+    if (cell.birth === shared.clock) {
       continue;
     }
     const element = ELEMENTS.get(cell.colour.splash);
@@ -1470,10 +1720,10 @@ stage.update = (context) => {
       }
     }
   }
-  const pointer2 = getPointer();
+  const pointer2 = Habitat.getPointer();
   if (pointer2.down) {
-    const colour = shared2.brush.colour;
-    const cell = world.pick(camera2.cast(scale(pointer2.position, devicePixelRatio)));
+    const colour = shared.brush.colour;
+    const cell = world.pick(camera.cast(Habitat.scale(pointer2.position, devicePixelRatio)));
     const canWrite = cell && (colour.splash === AIR_SPLASH || cell.colour.splash === AIR_SPLASH);
     if (canWrite) {
       const newCell = recolour(cell, colour);
@@ -1484,7 +1734,163 @@ stage.update = (context) => {
   }
 };
 Object.assign(window, global);
-Object.assign(window, shared2);
+Object.assign(window, shared);
 
-// src/index.ts
-Habitat.registerEverything();
+// src/element.ts
+var pointer = Habitat.getPointer();
+Habitat.on(
+  "keydown",
+  (event) => {
+    for (const [splash, element] of ELEMENTS) {
+      if (element.key.includes(event.key)) {
+        shared.brush.colour = new Habitat.Splash(splash).d;
+        return;
+      }
+    }
+  },
+  { passive: false }
+);
+var FALL_SPEED = 1 / 128;
+var MIN_SIZE = 1 / 256;
+var POINTER_RADIUS = 0;
+var POINTER_FADE_RADIUS = 0;
+var POINTER_CELL_SIZE = 1 / 4;
+var AIR_TARGET = 1 / 32;
+var getPointerAirTarget = (cell) => {
+  if (pointer.position.x === void 0) {
+    return AIR_TARGET;
+  }
+  const pointerPosition = global.camera.cast(Habitat.scale(pointer.position, devicePixelRatio));
+  const distanceFromPointer = distanceToBounds(pointerPosition, cell.bounds);
+  if (distanceFromPointer < POINTER_RADIUS) {
+    return POINTER_CELL_SIZE;
+  } else if (distanceFromPointer < POINTER_FADE_RADIUS) {
+    return Habitat.lerp([POINTER_CELL_SIZE, 1], distanceFromPointer - POINTER_RADIUS);
+  }
+  return AIR_TARGET;
+};
+var SOLID = /* @__PURE__ */ new Set([Habitat.YELLOW.splash, Habitat.GREEN.splash, Habitat.SILVER.splash]);
+
+// src/elements/fire.ts
+ELEMENTS.set(Habitat.RED.splash, {
+  name: "Fire",
+  key: ["f", "3"],
+  update: (cell, world) => {
+    if (Habitat.oneIn(200)) {
+      return world.replace([cell], [recolour(cell, Habitat.GREY)]);
+    }
+    const movements = move(cell, world, Habitat.randomFrom(["left", "right", "top"]), FALL_SPEED);
+    if (movements.length > 0) {
+      return world.replace(...movements);
+    }
+    return tryToSleep(cell, world, { filter: () => true });
+  }
+});
+
+// src/elements/plant.ts
+ELEMENTS.set(Habitat.GREEN.splash, {
+  name: "Plant",
+  key: ["p", "5"],
+  update: (cell, world) => {
+    const allContacts = [
+      ...pickContacts(cell, world, "top"),
+      ...pickContacts(cell, world, "bottom"),
+      ...pickContacts(cell, world, "left"),
+      ...pickContacts(cell, world, "right")
+    ];
+    const changed = [];
+    for (const contact of allContacts) {
+      if (contact.colour.splash === Habitat.BLUE.splash) {
+        const recoloured = recolour(contact, Habitat.GREEN);
+        changed.push(...world.replace([contact], [recoloured]));
+      }
+    }
+    return changed;
+  }
+});
+
+// src/elements/sand.ts
+ELEMENTS.set(Habitat.YELLOW.splash, {
+  name: "Sand",
+  key: ["s", "1"],
+  update: (cell, world) => {
+    const movements = move(cell, world, "bottom", FALL_SPEED);
+    if (movements.length > 0) {
+      return world.replace(...movements);
+    }
+    if (cell.dimensions[1] > MIN_SIZE) {
+      const [above, me] = split(cell, [2, 1]);
+      const splitReplacements = [[cell], [above, me]];
+      const slideDirection = Habitat.randomFrom(["left", "right"]);
+      const movements2 = move(above, world, slideDirection, FALL_SPEED);
+      if (movements2.length > 0) {
+        const splittings = world.replace(...splitReplacements);
+        const movings = world.replace(...movements2);
+        return [...splittings, ...movings];
+      }
+    }
+    return tryToSleep(cell, world);
+  }
+});
+
+// src/elements/stone.ts
+ELEMENTS.set(Habitat.SILVER.splash, {
+  name: "Stone",
+  key: ["t", "4"],
+  update: (cell, world) => {
+    const movements = move(cell, world, "bottom", FALL_SPEED);
+    if (movements.length > 0) {
+      return world.replace(...movements);
+    }
+    return tryToSleep(cell, world);
+  }
+});
+
+// src/elements/water.ts
+ELEMENTS.set(Habitat.BLUE.splash, {
+  name: "Water",
+  key: ["w", "2"],
+  update: (cell, world) => {
+    const movements = move(cell, world, "bottom", FALL_SPEED);
+    if (movements.length > 0) {
+      return world.replace(...movements);
+    }
+    const slideDirection = Habitat.randomFrom(["left", "right"]);
+    const slides = move(cell, world, slideDirection, FALL_SPEED, MIN_SIZE / 2);
+    if (slides.length > 0) {
+      return world.replace(...slides);
+    }
+    return tryToSleep(cell, world, { filter: () => true });
+  }
+});
+
+// src/elements/acid.ts
+ELEMENTS.set(Habitat.PURPLE.splash, {
+  name: "Acid",
+  key: ["a", "6"],
+  update: (cell, world) => {
+    const allContacts = [
+      ...pickContacts(cell, world, "top"),
+      ...pickContacts(cell, world, "bottom"),
+      ...pickContacts(cell, world, "left"),
+      ...pickContacts(cell, world, "right")
+    ];
+    const changed = [];
+    for (const contact of allContacts) {
+      if (contact.colour.splash !== Habitat.PURPLE.splash) {
+        const recoloured = recolour(contact, Habitat.GREY);
+        changed.push(...world.replace([contact], [recoloured]));
+      }
+    }
+    const movements = move(cell, world, "bottom", FALL_SPEED);
+    if (movements.length > 0) {
+      return world.replace(...movements);
+    }
+    const slideDirection = Habitat.randomFrom(["left", "right"]);
+    const slides = move(cell, world, slideDirection, FALL_SPEED, MIN_SIZE / 2);
+    if (slides.length > 0) {
+      return world.replace(...slides);
+    }
+    return tryToSleep(cell, world, { filter: () => true });
+  }
+});

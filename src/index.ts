@@ -1,18 +1,17 @@
-import "./libraries/habitat-embed.js";
-import "./libraries/camera.js";
+import "./libraries/habitat-embed.ts";
+import "./libraries/camera.ts";
 
-// @ts-ignore
-Habitat.registerEverything();
 
-import "./element.js";
+import "./elements.ts";
+import "./element.ts";
 
-import "./elements/air.js";
-import "./elements/fire.js";
-import "./elements/plant.js";
-import "./elements/sand.js";
-import "./elements/stone.js";
-import "./elements/water.js";
-import "./elements/acid.js";
+import "./elements/air.ts";
+import "./elements/fire.ts";
+import "./elements/plant.ts";
+import "./elements/sand.ts";
+import "./elements/stone.ts";
+import "./elements/water.ts";
+import "./elements/acid.ts";
 
-import "./sugar.js";
-import "./script.js";
+import "./sugar.ts";
+import "./script.ts";
