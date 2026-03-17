@@ -1,5 +1,5 @@
 import { Habitat } from "./libraries/habitat-embed"
-import { Camera, View } from "./libraries/camera"
+import { View } from "./libraries/camera"
 import { ELEMENTS } from "./elements"
 import { AIR_SPLASH } from "./elements/air"
 import { recolour } from "./sugar"
