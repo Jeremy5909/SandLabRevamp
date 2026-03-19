@@ -1,0 +1,1 @@
+//# sourceMappingURL=fire.d.ts.map
