@@ -34,7 +34,7 @@ const HabitatFrogasaurus = {}
   //====== ./html.js ======
   {
     HabitatFrogasaurus["./html.js"] = {}
-    const HTML = (source) => {
+    const HTML = (source: string) => {
       const template = document.createElement("template")
       template.innerHTML = source
       const { content } = template
@@ -631,8 +631,23 @@ const HabitatFrogasaurus = {}
   {
     HabitatFrogasaurus["./stage.js"] = {}
 
-    const Stage = function(properties) {
-      const template = struct({
+    interface Stage {
+      context: CanvasRenderingContext2D | undefined | null,
+      scale: number,
+      aspectRatio: [number, number],
+
+      speed: number,
+      clock: number,
+      paused: boolean,
+
+      start: (canvas: CanvasRenderingContext2D | null) => void,
+      resize: (canvas: CanvasRenderingContext2D | null) => void,
+      tick: (canvas: CanvasRenderingContext2D | null, stage: Stage) => void,
+      update: (canvas: CanvasRenderingContext2D | null) => void,
+    }
+
+    function Stage(properties: Stage) {
+      const template = struct<Stage>({
         context: undefined,
         scale: 1.0,
         aspectRatio: undefined,
@@ -660,7 +675,7 @@ const HabitatFrogasaurus = {}
       return stage
     }
 
-    const start = (stage) => {
+    const start = (stage: Stage) => {
       // Create a context + canvas if no context was provided
       if (stage.context === undefined) {
         const canvas = document.createElement("canvas")
@@ -680,7 +695,7 @@ const HabitatFrogasaurus = {}
       tick(stage)
     }
 
-    const resize = (stage) => {
+    const resize = (stage: Stage) => {
       let width = innerWidth
       let height = innerHeight
 
@@ -697,10 +712,7 @@ const HabitatFrogasaurus = {}
       const scaledWidth = width * stage.scale
       const scaledHeight = height * stage.scale
 
-      /*
-       */
-
-      const { canvas } = stage.context
+      const { canvas } = stage.context!
       canvas.width = Math.round(scaledWidth * devicePixelRatio)
       canvas.height = Math.round(scaledHeight * devicePixelRatio)
       canvas.style["width"] = Math.round(scaledWidth)
@@ -712,13 +724,13 @@ const HabitatFrogasaurus = {}
       canvas.style["margin-right"] = marginHorizontal
       canvas.style["margin-top"] = marginVertical
       canvas.style["margin-bottom"] = marginVertical
-      stage.resize(stage.context)
+      stage.resize(stage.context!)
     }
-    const tick = (stage) => {
+    const tick = (stage: Stage) => {
       stage.clock += stage.speed
       while (stage.clock > 0) {
-        if (!stage.paused) stage.update(stage.context)
-        stage.tick(stage.context, stage)
+        if (!stage.paused) stage.update(stage.context!)
+        stage.tick(stage.context!, stage)
         stage.clock--
       }
 
@@ -820,10 +832,11 @@ const HabitatFrogasaurus = {}
   //====== ./struct.js ======
   {
     HabitatFrogasaurus["./struct.js"] = {}
-    const struct = (parameters) =>
-      function(args) {
-        return { ...parameters, ...args }
+    function struct<T>(parameters: T) {
+      return function(args?: Partial<T>): T {
+        return { ...parameters, ...args } as T
       }
+    }
 
     HabitatFrogasaurus["./struct.js"].struct = struct
   }
@@ -850,36 +863,44 @@ const HabitatFrogasaurus = {}
     //=========//
     // CLASSES //
     //=========//
-    const Colour = class extends Array {
-      constructor(red, green, blue, alpha = 255) {
+    class Colour extends Array<number> {
+      get red() { return this[0] }
+      get green() { return this[1] }
+      get blue() { return this[2] }
+      get alpha() { return this[3] }
+
+      constructor(red: number, green: number, blue: number, alpha = 255) {
         super()
         this.push(red, green, blue)
-        if (alpha !== undefined) {
-          this.push(alpha)
-        }
+        this.push(alpha)
       }
 
-      toString() {
-        const [red, green, blue, alpha] = this.map((v) => v.toString(16).padStart(2, "0"))
-        if (this.alpha === 255) {
-          return `#${red}${green}${blue}`
-        }
-
-        return `#${red}${green}${blue}${alpha}`
+      toString(): string {
+        const hex = (v: number) => v.toString(16).padStart(2, "0")
+        const r = hex(this.red)
+        const g = hex(this.green)
+        const b = hex(this.blue)
+        if (this.alpha === 255) return `#${r}${g}${b}`
+        return `#${r}${g}${b}${hex(this.alpha)}`
       }
     }
 
-    const Splash = class extends Colour {
-      constructor(number) {
+    class Splash extends Colour {
+      readonly splash: number
+
+      constructor(number: number) {
         const wrappedNumber = wrapSplashNumber(number)
-        const [hundreds, tens, ones] = getThreeDigits(wrappedNumber, 3)
+        const [hundreds, tens, ones] = getThreeDigits(wrappedNumber)
         const red = RED_SPLASH_VALUES[hundreds]
         const green = GREEN_SPLASH_VALUES[tens]
         const blue = BLUE_SPLASH_VALUES[ones]
         super(red, green, blue)
+
         Reflect.defineProperty(this, "splash", {
           value: number,
           enumerable: false,
+          writable: false,
+          configurable: false
         })
       }
     }

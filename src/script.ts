@@ -3,96 +3,74 @@ import { View } from "./libraries/camera"
 import { ELEMENTS } from "./elements"
 import { AIR_SPLASH } from "./elements/air"
 import { recolour } from "./sugar"
+import { BLACK, Colour, Splash, VOID, YELLOW } from "./libraries/colour"
 //========//
 // SHARED //
 //========//
 export const shared = {
   clock: 0,
   brush: {
-    colour: Habitat.YELLOW,
+    colour: YELLOW
   },
 }
 
 //------ NO SHARED CREATED BELOW THIS LINE ------//
+
 
 //======//
 // CELL //
 //======//
 export class Cell {
   birth: number
-  splash: any
-  colour: any
-  bounds: any
-  position: any[]
+  colour: Colour = BLACK
+  splash = BLACK.splash
+  bounds = { left: 0, right: 1, top: 0, bottom: 1 }
+  position: number[]
   dimensions: number[]
 
-  constructor(options = {}) {
+  constructor(options: Partial<Pick<Cell, "colour" | "bounds">> = {}) {
     // Properties
-    Object.assign(this, {
-      bounds: {
-        left: 0.0,
-        right: 1.0,
-        top: 0.0,
-        bottom: 1.0,
-      },
-      colour: Habitat.BLACK,
-      ...options,
-    })
+    Object.assign(this, options)
 
-    // Internal
     this.birth = shared.clock
-
-    // Caches
     this.splash = this.colour.splash
-
-    const x = this.bounds.left
-    const y = this.bounds.top
-    this.position = [x, y]
+    this.position = [(this.bounds.left), (this.bounds.top)]
 
     const width = this.bounds.right - this.bounds.left
     const height = this.bounds.bottom - this.bounds.top
     this.dimensions = [width, height]
 
     // Check for rounding errors
-    const widthTest1 = this.bounds.left + width === this.bounds.right
-    const widthTest2 = this.bounds.right - width === this.bounds.left
 
-    const heightTest1 = this.bounds.top + height === this.bounds.bottom
-    const heightTest2 = this.bounds.bottom - height === this.bounds.top
 
-    if (!widthTest1) {
+    if (this.bounds.left + width !== this.bounds.right)
       console.error("Cell bounds are not consistent with dimensions", this.bounds.left + width, this.bounds.right)
-    }
 
-    if (!widthTest2) {
+    if (this.bounds.right - width !== this.bounds.left)
       console.error("Cell bounds are not consistent with dimensions", this.bounds.right - width, this.bounds.left)
-    }
 
-    if (!heightTest1) {
+    if (this.bounds.top + height !== this.bounds.bottom)
       console.error(
         "Cell bounds are not consistent with dimensions",
         this.bounds.top + height,
         this.bounds.bottom,
       )
-    }
-
-    if (!heightTest2) {
+    if (this.bounds.bottom - height !== this.bounds.top)
       console.error(
         "Cell bounds are not consistent with dimensions",
         this.bounds.bottom - height,
         this.bounds.top,
       )
-    }
   }
 
-  clear(image) {
+  clear(image: ImageData) {
     const { colour } = this
-    this.colour = Habitat.VOID
+    this.colour = VOID
     this.draw(image)
     this.colour = colour
   }
 
-  draw(image) {
+  draw(image: ImageData) {
     const [x, y] = [this.position[0] * image.width, this.position[1] * image.height]
     const [width, height] = [this.dimensions[0] * image.width, this.dimensions[1] * image.height]
 
@@ -146,12 +124,12 @@ export class Cell {
 //=======//
 // IMAGE //
 //=======//
-const getPixelIndex = (image, x, y) => {
+const getPixelIndex = (image: ImageData, x: number, y: number) => {
   return (x + y * image.width) * 4
 }
 
 // Function that sets the alpha channel of every pixel
-const setImageAlpha = (image, alpha) => {
+const setImageAlpha = (image: ImageData, alpha: number) => {
   for (let i = 3; i < image.data.length; i += 4) {
     image.data[i] = alpha
   }
@@ -160,7 +138,7 @@ const setImageAlpha = (image, alpha) => {
 //=======//
 // WORLD //
 //=======//
-class World {
+export class World {
   cells: Set<Cell>
   caches: { left: Map<any, any>; right: Map<any, any>; top: Map<any, any>; bottom: Map<any, any> }
   constructor({ colour = Habitat.BLACK } = {}) {
@@ -179,17 +157,17 @@ class World {
     this.add(new Cell({ colour }))
   }
 
-  add(cell) {
+  add(cell: Cell) {
     this.cells.add(cell)
     this.cache(cell)
   }
 
-  delete(cell) {
+  delete(cell: Cell) {
     this.cells.delete(cell)
     this.uncache(cell)
   }
 
-  cache(cell) {
+  cache(cell: Cell) {
     for (const key in DIRECTION) {
       const cache = this.caches[key]
       const address = cell.bounds[key]
@@ -202,7 +180,7 @@ class World {
     }
   }
 
-  uncache(cell) {
+  uncache(cell: Cell) {
     for (const key in DIRECTION) {
       const cache = this.caches[key]
       const address = cell.bounds[key]
@@ -214,13 +192,13 @@ class World {
     }
   }
 
-  draw(image) {
+  draw(image: ImageData) {
     for (const cell of this.cells) {
       cell.draw(image)
     }
   }
 
-  replace(cells, newCells) {
+  replace(cells: Cell[], newCells: Cell[]) {
     for (const cell of cells) {
       this.delete(cell)
     }
@@ -231,7 +209,7 @@ class World {
     return newCells
   }
 
-  pick(position) {
+  pick(position: number[]) {
     const [x, y] = position
     for (const cell of this.cells) {
       const [left, top] = cell.position
@@ -247,13 +225,13 @@ class World {
 //========//
 // COLOUR //
 //========//
-const getSplashDigits = (splash) => {
+const getSplashDigits = (splash: Splash) => {
   const chars = splash.toString().padStart(3, "0").split("")
   const digits = chars.map((v) => parseInt(v))
   return digits
 }
 
-const mutateSplash = (splash) => {
+const mutateSplash = (splash: Splash) => {
   const digits = getSplashDigits(splash)
   digits[0] = Habitat.clamp(digits[0] + Habitat.randomFrom([0, -1, -1]), 0, 9)
   digits[1] = Habitat.clamp(digits[1] + Habitat.randomFrom([-1, 0, 1]), 0, 9)
@@ -266,36 +244,28 @@ const mutateSplash = (splash) => {
 //===========//
 export const DIRECTION = {
   left: {
-    name: "left",
-    min: "top",
-    max: "bottom",
-    axis: "x",
-    dimensionNumber: 1,
-    sign: -1,
+    name: "left", min: "top", max: "bottom",
+    axis: "x", dimensionNumber: 1, sign: -1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   right: {
-    name: "right",
-    min: "top",
-    max: "bottom",
-    axis: "x",
-    dimensionNumber: 1,
-    sign: 1,
+    name: "right", min: "top", max: "bottom",
+    axis: "x", dimensionNumber: 1, sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   top: {
-    name: "top",
-    min: "left",
-    max: "right",
-    axis: "y",
-    dimensionNumber: 0,
-    sign: -1,
+    name: "top", min: "left", max: "right",
+    axis: "y", dimensionNumber: 0, sign: -1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   bottom: {
-    name: "bottom",
-    min: "left",
-    max: "right",
-    axis: "y",
-    dimensionNumber: 0,
-    sign: 1,
+    name: "bottom", min: "left", max: "right",
+    axis: "y", dimensionNumber: 0, sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
 }
 
@@ -311,23 +281,18 @@ DIRECTION.bottom.adjacent = DIRECTION.left
 
 export const AXIS = {
   x: {
-    name: "x",
-    min: "top",
-    max: "bottom",
-    edges: ["left", "right"],
-    dimensionNumber: 1,
-    sign: 1,
+    name: "x", min: "top", max: "bottom",
+    edges: ["left", "right"], dimensionNumber: 1, sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   y: {
-    name: "y",
-    min: "left",
-    max: "right",
-    edges: ["top", "bottom"],
-    dimensionNumber: 0,
-    sign: 1,
+    name: "y", min: "left", max: "right",
+    edges: ["top", "bottom"], dimensionNumber: 0, sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
 }
-
 AXIS.x.opposite = AXIS.x
 AXIS.y.opposite = AXIS.y
 
@@ -342,7 +307,7 @@ AXIS.y.adjacent = AXIS.x
 export const global = {
   world: new World({ colour: Habitat.GREY }),
   camera: new View(),
-  image: undefined,
+  image: undefined as undefined | ImageData,
 }
 
 //===========//
@@ -350,12 +315,12 @@ export const global = {
 //===========//
 const stage = new Habitat.Stage({ speed: 2.0, paused: false })
 
-stage.start = (context) => {
+stage.start = (context: CanvasRenderingContext2D) => {
   const { canvas } = context
-  canvas.style["background-color"] = Habitat.VOID
+  canvas.style["background-color"] = VOID
 }
 
-stage.resize = (context) => {
+stage.resize = (context: CanvasRenderingContext2D) => {
   const { world, camera } = global
   const { canvas } = context
 
@@ -374,7 +339,7 @@ stage.resize = (context) => {
   context.putImageData(image, x, y)
 }
 
-stage.tick = (context) => {
+stage.tick = (context: CanvasRenderingContext2D) => {
   const { canvas } = context
   const { image, camera } = global
   const [x, y] = camera.get([0, 0])
@@ -383,10 +348,10 @@ stage.tick = (context) => {
   //global.world.draw(image)
 
   context.clearRect(0, 0, canvas.width, canvas.height)
-  context.putImageData(image, x, y)
+  context.putImageData(image!, x, y)
 }
 
-stage.update = (context) => {
+stage.update = (context: CanvasRenderingContext2D) => {
   const { world, image, camera } = global
 
   shared.clock = Habitat.wrap(shared.clock + 1, 0, 999)
@@ -420,8 +385,8 @@ stage.update = (context) => {
     if (canWrite) {
       const newCell = recolour(cell, colour)
       world.replace([cell], [newCell])
-      cell.clear(image)
-      newCell.draw(image)
+      cell.clear(image!)
+      newCell.draw(image!)
     }
   }
 }
