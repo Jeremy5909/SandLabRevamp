@@ -2,16 +2,20 @@ import { Habitat } from "./libraries/habitat-embed"
 import { View } from "./libraries/camera"
 import { ELEMENTS } from "./elements"
 import { AIR_SPLASH } from "./elements/air"
-import { recolour } from "./sugar"
+import { recolor } from "./sugar"
+import Color from "color"
 //========//
 // SHARED //
 //========//
 export const shared = {
   clock: 0,
   brush: {
-    colour: Habitat.YELLOW,
+    color: Color("yellow")
   },
 }
+
+const VOID = Color("rgb(18,22,30)")
+// const BORDER = Color("black")
 
 //------ NO SHARED CREATED BELOW THIS LINE ------//
 
@@ -19,59 +23,56 @@ export const shared = {
 // CELL //
 //======//
 export class Cell {
-  birth: number
-  splash: any
-  colour: any
-  bounds: any
-  position: any[]
-  dimensions: number[]
+  birth = shared.clock
+  //splash: any
+  color = VOID
+  bounds = {
+    left: 0.0,
+    right: 1.0,
+    top: 0.0,
+    bottom: 1.0,
+  }
+  position: [number, number] = [0, 0]
+  dimensions: [number, number] = [1, 1]
 
   constructor(options = {}) {
     // Properties
     Object.assign(this, {
-      bounds: {
-        left: 0.0,
-        right: 1.0,
-        top: 0.0,
-        bottom: 1.0,
-      },
-      colour: Habitat.BLACK,
       ...options,
     })
+    this.position = [this.bounds.left, this.bounds.top]
+    this.dimensions = [(this.bounds.right - this.bounds.left), (this.bounds.bottom - this.bounds.top)]
 
     // Internal
     this.birth = shared.clock
 
     // Caches
-    this.splash = this.colour.splash
+    //this.splash = this.color.splash
 
     const x = this.bounds.left
     const y = this.bounds.top
     this.position = [x, y]
 
-    const width = this.bounds.right - this.bounds.left
-    const height = this.bounds.bottom - this.bounds.top
-    this.dimensions = [width, height]
 
     // Check for rounding errors
-    const widthTest1 = this.bounds.left + width === this.bounds.right
-    const widthTest2 = this.bounds.right - width === this.bounds.left
+    const widthTest1 = this.bounds.left + this.bounds.right - this.bounds.left === this.bounds.right
+    const widthTest2 = this.bounds.right - this.bounds.right - this.bounds.left === this.bounds.left
 
-    const heightTest1 = this.bounds.top + height === this.bounds.bottom
-    const heightTest2 = this.bounds.bottom - height === this.bounds.top
+    const heightTest1 = this.bounds.top + this.bounds.bottom - this.bounds.top === this.bounds.bottom
+    const heightTest2 = this.bounds.bottom - this.bounds.bottom - this.bounds.top === this.bounds.top
 
     if (!widthTest1) {
-      console.error("Cell bounds are not consistent with dimensions", this.bounds.left + width, this.bounds.right)
+      console.error("Cell bounds are not consistent with dimensions", this.bounds.left + this.bounds.right - this.bounds.left, this.bounds.right)
     }
 
     if (!widthTest2) {
-      console.error("Cell bounds are not consistent with dimensions", this.bounds.right - width, this.bounds.left)
+      console.error("Cell bounds are not consistent with dimensions", this.bounds.right - this.bounds.right - this.bounds.left, this.bounds.left)
     }
 
     if (!heightTest1) {
       console.error(
         "Cell bounds are not consistent with dimensions",
-        this.bounds.top + height,
+        this.bounds.top + this.bounds.bottom - this.bounds.top,
         this.bounds.bottom,
       )
     }
@@ -79,20 +80,20 @@ export class Cell {
     if (!heightTest2) {
       console.error(
         "Cell bounds are not consistent with dimensions",
-        this.bounds.bottom - height,
+        this.bounds.bottom - this.bounds.bottom - this.bounds.top,
         this.bounds.top,
       )
     }
   }
 
-  clear(image) {
-    const { colour } = this
-    this.colour = Habitat.VOID
+  clear(image: ImageData) {
+    const { color: color } = this
+    this.color = VOID
     this.draw(image)
-    this.colour = colour
+    this.color = color
   }
 
-  draw(image) {
+  draw(image: ImageData) {
     const [x, y] = [this.position[0] * image.width, this.position[1] * image.height]
     const [width, height] = [this.dimensions[0] * image.width, this.dimensions[1] * image.height]
 
@@ -107,7 +108,7 @@ export class Cell {
     let i = getPixelIndex(image, left, top)
 
     // Set the image data of every pixel in the cell
-    // The border is 1 pixel thick and void coloured
+    // The border is 1 pixel thick and void colored
     let BORDER_WIDTH = Math.min(1, Math.min(drawnWidth, drawnHeight) / 10)
     if (BORDER_WIDTH < 1) {
       if (BORDER_WIDTH > 0.4) {
@@ -117,10 +118,8 @@ export class Cell {
       }
     }
 
-    const area = this.dimensions[0] * this.dimensions[1]
-
-    //const fillColour = lerp([[0, 0, 0], GREEN], area ** 0.25).map((v) => Math.floor(v))
-    const fillColour = this.colour
+    //const fillcolor = lerp([[0, 0, 0], GREEN], area ** 0.25).map((v) => Math.floor(v))
+    const fillcolor = this.color
 
     for (let y = top; y <= bottom; y++) {
       for (let x = left; x <= right; x++) {
@@ -131,11 +130,12 @@ export class Cell {
             y < top + BORDER_WIDTH ||
             y > bottom - BORDER_WIDTH)
 
-        const colour = isBorder ? Habitat.VOID : fillColour
+        const color = (isBorder ? VOID : fillcolor);
+        const color1 = color.rgb().array()
 
-        image.data[i + 0] = colour[0]
-        image.data[i + 1] = colour[1]
-        image.data[i + 2] = colour[2]
+        image.data[i + 0] = color1[0]!
+        image.data[i + 1] = color1[1]!
+        image.data[i + 2] = color1[2]!
         i += 4
       }
       i += (image.width - drawnWidth - 1) * 4
@@ -146,12 +146,12 @@ export class Cell {
 //=======//
 // IMAGE //
 //=======//
-const getPixelIndex = (image, x, y) => {
+const getPixelIndex = (image: ImageData, x: number, y: number) => {
   return (x + y * image.width) * 4
 }
 
 // Function that sets the alpha channel of every pixel
-const setImageAlpha = (image, alpha) => {
+const setImageAlpha = (image: ImageData, alpha: number) => {
   for (let i = 3; i < image.data.length; i += 4) {
     image.data[i] = alpha
   }
@@ -163,7 +163,7 @@ const setImageAlpha = (image, alpha) => {
 class World {
   cells: Set<Cell>
   caches: { left: Map<any, any>; right: Map<any, any>; top: Map<any, any>; bottom: Map<any, any> }
-  constructor({ colour = Habitat.BLACK } = {}) {
+  constructor({ color = Color("black") } = {}) {
     // Properties
     this.cells = new Set()
 
@@ -176,20 +176,20 @@ class World {
     }
 
     // Setup
-    this.add(new Cell({ colour }))
+    this.add(new Cell({ color }))
   }
 
-  add(cell) {
+  add(cell: Cell) {
     this.cells.add(cell)
     this.cache(cell)
   }
 
-  delete(cell) {
+  delete(cell: Cell) {
     this.cells.delete(cell)
     this.uncache(cell)
   }
 
-  cache(cell) {
+  cache(cell: Cell) {
     for (const key in DIRECTION) {
       const cache = this.caches[key]
       const address = cell.bounds[key]
@@ -202,7 +202,7 @@ class World {
     }
   }
 
-  uncache(cell) {
+  uncache(cell: Cell) {
     for (const key in DIRECTION) {
       const cache = this.caches[key]
       const address = cell.bounds[key]
@@ -214,13 +214,13 @@ class World {
     }
   }
 
-  draw(image) {
+  draw(image: ImageData) {
     for (const cell of this.cells) {
       cell.draw(image)
     }
   }
 
-  replace(cells, newCells) {
+  replace(cells: Cell[], newCells: Cell[]) {
     for (const cell of cells) {
       this.delete(cell)
     }
@@ -231,7 +231,7 @@ class World {
     return newCells
   }
 
-  pick(position) {
+  pick(position: [number, number]) {
     const [x, y] = position
     for (const cell of this.cells) {
       const [left, top] = cell.position
@@ -241,25 +241,26 @@ class World {
         return cell
       }
     }
+    return undefined
   }
 }
 
-//========//
-// COLOUR //
-//========//
-const getSplashDigits = (splash) => {
-  const chars = splash.toString().padStart(3, "0").split("")
-  const digits = chars.map((v) => parseInt(v))
-  return digits
-}
-
-const mutateSplash = (splash) => {
-  const digits = getSplashDigits(splash)
-  digits[0] = Habitat.clamp(digits[0] + Habitat.randomFrom([0, -1, -1]), 0, 9)
-  digits[1] = Habitat.clamp(digits[1] + Habitat.randomFrom([-1, 0, 1]), 0, 9)
-  digits[2] = Habitat.clamp(digits[2] + Habitat.randomFrom([-1, 0, 1]), 0, 9)
-  return parseInt(digits.join(""))
-}
+// //========//
+// // color //
+// //========//
+// const getSplashDigits = (splash) => {
+//   const chars = splash.toString().padStart(3, "0").split("")
+//   const digits = chars.map((v) => parseInt(v))
+//   return digits
+// }
+//
+// const mutateSplash = (splash) => {
+//   const digits = getSplashDigits(splash)
+//   digits[0] = Habitat.clamp(digits[0] + Habitat.randomFrom([0, -1, -1]), 0, 9)
+//   digits[1] = Habitat.clamp(digits[1] + Habitat.randomFrom([-1, 0, 1]), 0, 9)
+//   digits[2] = Habitat.clamp(digits[2] + Habitat.randomFrom([-1, 0, 1]), 0, 9)
+//   return parseInt(digits.join(""))
+// }
 
 //===========//
 // DIRECTION //
@@ -272,6 +273,8 @@ export const DIRECTION = {
     axis: "x",
     dimensionNumber: 1,
     sign: -1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   right: {
     name: "right",
@@ -280,6 +283,8 @@ export const DIRECTION = {
     axis: "x",
     dimensionNumber: 1,
     sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   top: {
     name: "top",
@@ -288,6 +293,8 @@ export const DIRECTION = {
     axis: "y",
     dimensionNumber: 0,
     sign: -1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   bottom: {
     name: "bottom",
@@ -296,6 +303,8 @@ export const DIRECTION = {
     axis: "y",
     dimensionNumber: 0,
     sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
 }
 
@@ -317,6 +326,8 @@ export const AXIS = {
     edges: ["left", "right"],
     dimensionNumber: 1,
     sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
   y: {
     name: "y",
@@ -325,6 +336,8 @@ export const AXIS = {
     edges: ["top", "bottom"],
     dimensionNumber: 0,
     sign: 1,
+    opposite: undefined as any,
+    adjacent: undefined as any
   },
 }
 
@@ -339,8 +352,8 @@ AXIS.y.adjacent = AXIS.x
 //========//
 // GLOBAL //
 //========//
-export const global = {
-  world: new World({ colour: Habitat.GREY }),
+export const global: { world: World, camera: any, image: ImageData | undefined } = {
+  world: new World({ color: Habitat.GREY }),
   camera: new View(),
   image: undefined,
 }
@@ -350,12 +363,12 @@ export const global = {
 //===========//
 const stage = new Habitat.Stage({ speed: 2.0, paused: false })
 
-stage.start = (context) => {
+stage.start = (context: CanvasRenderingContext2D) => {
   const { canvas } = context
-  canvas.style["background-color"] = Habitat.VOID
+  canvas.style.backgroundColor = Color("black").hex()
 }
 
-stage.resize = (context) => {
+stage.resize = (context: CanvasRenderingContext2D) => {
   const { world, camera } = global
   const { canvas } = context
 
@@ -374,7 +387,7 @@ stage.resize = (context) => {
   context.putImageData(image, x, y)
 }
 
-stage.tick = (context) => {
+stage.tick = (context: CanvasRenderingContext2D) => {
   const { canvas } = context
   const { image, camera } = global
   const [x, y] = camera.get([0, 0])
@@ -383,10 +396,10 @@ stage.tick = (context) => {
   //global.world.draw(image)
 
   context.clearRect(0, 0, canvas.width, canvas.height)
-  context.putImageData(image, x, y)
+  context.putImageData(image!, x, y)
 }
 
-stage.update = (context) => {
+stage.update = (_context: CanvasRenderingContext2D) => {
   const { world, image, camera } = global
 
   shared.clock = Habitat.wrap(shared.clock + 1, 0, 999)
@@ -397,7 +410,7 @@ stage.update = (context) => {
       continue
     }
 
-    const element = ELEMENTS.get(cell.colour.splash)
+    const element = ELEMENTS.get(cell.color)
 
     if (element === undefined) {
       continue
@@ -414,14 +427,14 @@ stage.update = (context) => {
   // Place cells with the pointer
   const pointer = Habitat.getPointer()
   if (pointer.down) {
-    const colour = shared.brush.colour
+    const color = shared.brush.color
     const cell = world.pick(camera.cast(Habitat.scale(pointer.position, devicePixelRatio)))
-    const canWrite = cell && (colour.splash === AIR_SPLASH || cell.colour.splash === AIR_SPLASH)
+    const canWrite = cell && (color.hex() === AIR_SPLASH.hex() || cell.color.hex() === AIR_SPLASH.hex())
     if (canWrite) {
-      const newCell = recolour(cell, colour)
+      const newCell = recolor(cell, color)
       world.replace([cell], [newCell])
-      cell.clear(image)
-      newCell.draw(image)
+      cell.clear(image!)
+      newCell.draw(image!)
     }
   }
 }

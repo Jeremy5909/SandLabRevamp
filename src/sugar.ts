@@ -6,12 +6,12 @@ import { SOLID } from "./element"
 import { AXIS, Cell, DIRECTION, shared } from "./script"
 import { Habitat } from "./libraries/habitat-embed"
 
-export const split = (cell, [rows, columns]) => {
+export const split = (cell: Cell, [rows, columns]: [number, number]) => {
   const { left, right, top, bottom } = cell.bounds
   const [width, height] = cell.dimensions
 
-  const splitWidth = width / columns
-  const splitHeight = height / rows
+  const splitWidth = width! / columns
+  const splitHeight = height! / rows
 
   const cells = []
 
@@ -26,7 +26,7 @@ export const split = (cell, [rows, columns]) => {
           right: right - (columns - j - 1) * splitWidth,
           bottom: bottom - (rows - i - 1) * splitHeight,
         },
-        colour: cell.colour,
+        color: cell.color,
       })
 
       cells.push(splitCell)
@@ -38,7 +38,7 @@ export const split = (cell, [rows, columns]) => {
 
 // Chop a cell into smaller cells along an axis
 // The targets are the positions along the axis where the cells should be chopped
-const chop = (cell, axis, targets) => {
+const chop = (cell: Cell, axis, targets) => {
   if (targets.length === 0) {
     return [cell]
   }
@@ -70,7 +70,7 @@ const chop = (cell, axis, targets) => {
 
     const choppedCell = new Cell({
       bounds,
-      colour: cell.colour,
+      color: cell.color,
     })
 
     cells.push(choppedCell)
@@ -83,7 +83,7 @@ const chop = (cell, axis, targets) => {
 // From an array of cells, return a single cell that encompasses all of them
 // This assumes that the cells are all connected via touching
 // The cells can be in any order and can have different dimensions
-const merge = (cells, colour = cells[0].colour) => {
+const merge = (cells, color = cells[0].color) => {
   if (cells.length === 0) {
     throw new Error("Cannot merge 0 cells")
   }
@@ -102,7 +102,7 @@ const merge = (cells, colour = cells[0].colour) => {
   }
 
   return new Cell({
-    colour,
+    color,
     bounds: {
       left,
       top,
@@ -112,9 +112,9 @@ const merge = (cells, colour = cells[0].colour) => {
   })
 }
 
-const reposition = (cell, bounds) => {
+const reposition = (cell: Cell, bounds) => {
   return new Cell({
-    colour: cell.colour,
+    color: cell.color,
     bounds: {
       ...cell.bounds,
       ...bounds,
@@ -122,9 +122,9 @@ const reposition = (cell, bounds) => {
   })
 }
 
-export const recolour = (cell, colour) => {
+export const recolor = (cell, color) => {
   return new Cell({
-    colour,
+    color,
     bounds: cell.bounds,
   })
 }
@@ -311,7 +311,7 @@ const defaultFilter = (cell) => {
 // 'Sleeping' means merging with a nearby cell so that we don't have to
 // update or draw this cell every frame
 //
-// This function makes a cell look for a nearby cell (of the same colour) to merge with
+// This function makes a cell look for a nearby cell (of the same color) to merge with
 // If it finds one, it merges with it and returns any cells created
 // If it doesn't find one, it returns an empty array
 //
@@ -383,7 +383,7 @@ export const move = (cell, world, edge, speed, minSize = 0) => {
   const water = cell
 
   // If there isn't solid below, fall
-  if (below.snips.every((c) => !SOLID.has(c.colour.splash) && c.colour.splash !== cell.splash)) {
+  if (below.snips.every((c) => !SOLID.has(c.color.splash) && c.color.splash !== cell.splash)) {
     const movedCells = swapSnips(water, below.snips, edge)
     return [
       [cell, ...below.contacts],
@@ -392,7 +392,7 @@ export const move = (cell, world, edge, speed, minSize = 0) => {
   }
 
   // If there are some gaps below, fall into those bits
-  const gaps = below.snips.filter((c) => !SOLID.has(c.colour.splash) && c.colour.splash !== cell.splash)
+  const gaps = below.snips.filter((c) => !SOLID.has(c.color.splash) && c.color.splash !== cell.splash)
   if (gaps.length > 0) {
     // Cut myself up into gap-sized pieces
     const targets = gaps.map((v) => [v.bounds[direction.min], v.bounds[direction.max]]).flat()
@@ -433,8 +433,8 @@ const sleep = (cell, world, edge, filter) => {
   // Loop through all the candidates
   // If we find a cell that we can merge with, we'll merge with it and return true
   for (const candidate of candidates) {
-    // If the candidate is a different colour, we can't merge with it
-    if (!equals(candidate.colour, cell.colour)) {
+    // If the candidate is a different color, we can't merge with it
+    if (!equals(candidate.color, cell.color)) {
       continue
     }
 

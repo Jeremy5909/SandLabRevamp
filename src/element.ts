@@ -10,7 +10,7 @@ Habitat.on(
   (event) => {
     for (const [splash, element] of ELEMENTS) {
       if (element.key.includes(event.key)) {
-        shared.brush.colour = new Habitat.Splash(splash)
+        shared.brush.color = new Habitat.Splash(splash)
         return
       }
     }
