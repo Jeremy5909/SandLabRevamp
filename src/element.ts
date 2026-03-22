@@ -2,6 +2,7 @@ import { Habitat } from "./libraries/habitat-embed"
 import { shared, global } from "./script"
 import { distanceToBounds } from "./sugar"
 import { ELEMENTS } from "./elements"
+import Color from "color"
 
 const pointer = Habitat.getPointer()
 
@@ -43,4 +44,4 @@ export const getPointerAirTarget = (cell) => {
   return AIR_TARGET
 }
 
-export const SOLID = new Set([Habitat.YELLOW.splash, Habitat.GREEN.splash, Habitat.SILVER.splash])
+export const SOLID = new Set([Color("yellow"), Color("green"), Color("grey")])
