@@ -13,7 +13,7 @@ export const split = (cell: Cell, [rows, columns]: [number, number]) => {
   const splitWidth = width! / columns
   const splitHeight = height! / rows
 
-  const cells = []
+  const cells: Cell[] = []
 
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < columns; j++) {
@@ -52,7 +52,7 @@ const chop = (cell: Cell, axis, targets) => {
       return previous === undefined || v !== previous
     })
 
-  const cells = []
+  const cells: Cell[] = []
   let currentTarget = cell.bounds[direction.min]
   for (let i = 0; i <= targets.length; i++) {
     const target = targets[i] || cell.bounds[direction.max]
@@ -173,7 +173,7 @@ export const pickContacts = (cell, world, edge = "right") => {
     return []
   }
 
-  const cells = []
+  const cells: Cell[] = []
   for (const other of set) {
     const otherMin = other.bounds[direction.min]
     const otherMax = other.bounds[direction.max]
@@ -199,8 +199,8 @@ const snipContacts = (cell, contacts, edge, reach = Infinity) => {
   const contactReach = Math.min(reach, ...contacts.map((contact) => contact.dimensions[adjacent.dimensionNumber]))
   const signedReach = contactReach * direction.sign
 
-  const sizeds = []
-  const excesses = []
+  const sizeds: Cell[] = []
+  const excesses: Cell[] = []
 
   for (const contact of contacts) {
     const { bounds } = contact
@@ -226,7 +226,7 @@ const snipContacts = (cell, contacts, edge, reach = Infinity) => {
   // If any sizedContacts overlap the cell, chop them off
   const cellMin = cell.bounds[direction.min]
   const cellMax = cell.bounds[direction.max]
-  const snips = []
+  const snips: Cell[] = []
   for (let sized of sizeds) {
     // If the contact overlaps with the min of the cell, chop it off
     const sizedMin = sized.bounds[direction.min]
@@ -248,7 +248,7 @@ const snipContacts = (cell, contacts, edge, reach = Infinity) => {
     snips.push(sized)
   }
 
-  return [snips, excesses, contactReach]
+  return [snips, excesses, contactReach] as const
 }
 
 const pickSnips = (cell, world, edge, reach) => {
@@ -283,7 +283,7 @@ const swapSnips = (cell, snips, edge) => {
     [oppositeEdge]: direction.sign === 1 ? middle : middle,
   })
 
-  const newSnips = []
+  const newSnips: Cell[] = []
   for (const snip of snips) {
     const newSnip = reposition(snip, {
       [oppositeEdge]: direction.sign === 1 ? back : back,
@@ -324,8 +324,8 @@ export const tryToSleep = (
   world,
   { edges = Object.keys(DIRECTION), judge = defaultJudge, compare = defaultCompare, filter = defaultFilter } = {},
 ) => {
-  let winner = undefined
-  let highScore = undefined
+  let highScore: undefined | number = undefined
+  let winner: undefined | any = undefined
 
   for (const edge of Habitat.shuffleArray(edges)) {
     const replacement = sleep(cell, world, edge, filter)
@@ -372,7 +372,7 @@ const equals = (a, b) => {
 }
 
 // Returns a list of replacements that should be done
-export const move = (cell, world, edge, speed, minSize = 0) => {
+export const move = (cell: Cell, world, edge, speed, minSize = 0) => {
   const direction = DIRECTION[edge]
   const below = pickSnips(cell, world, edge, speed)
 
@@ -383,7 +383,7 @@ export const move = (cell, world, edge, speed, minSize = 0) => {
   const water = cell
 
   // If there isn't solid below, fall
-  if (below.snips.every((c) => !SOLID.has(c.color.splash) && c.color.splash !== cell.splash)) {
+  if (below.snips.every((c) => !SOLID.has(c.color) && c.color !== cell.color)) {
     const movedCells = swapSnips(water, below.snips, edge)
     return [
       [cell, ...below.contacts],
@@ -392,7 +392,7 @@ export const move = (cell, world, edge, speed, minSize = 0) => {
   }
 
   // If there are some gaps below, fall into those bits
-  const gaps = below.snips.filter((c) => !SOLID.has(c.color.splash) && c.color.splash !== cell.splash)
+  const gaps = below.snips.filter((c) => !SOLID.has(c.color) && c.color !== cell.color)
   if (gaps.length > 0) {
     // Cut myself up into gap-sized pieces
     const targets = gaps.map((v) => [v.bounds[direction.min], v.bounds[direction.max]]).flat()
@@ -412,7 +412,7 @@ export const move = (cell, world, edge, speed, minSize = 0) => {
   return []
 }
 
-const sleep = (cell, world, edge, filter) => {
+const sleep = (cell: Cell, world, edge, filter) => {
   const failure = { oldCells: [], newCells: [] }
 
   const direction = DIRECTION[edge]
@@ -428,7 +428,7 @@ const sleep = (cell, world, edge, filter) => {
   // Shuffle the contacts so that we don't always merge with the same cell
   const candidates = Habitat.shuffleArray(contacts)
 
-  const splitCandidates = []
+  const splitCandidates: Cell[] = []
 
   // Loop through all the candidates
   // If we find a cell that we can merge with, we'll merge with it and return true
@@ -470,7 +470,7 @@ const sleep = (cell, world, edge, filter) => {
   for (const candidate of splitCandidates) {
     // Where should we split the candidate?
     // We might need to chop in two places, or just one
-    const targets = []
+    const targets: any[] = []
     let mergeIndex = 0
     if (candidate.bounds[direction.min] < cell.bounds[direction.min]) {
       targets.push(cell.bounds[direction.min])
