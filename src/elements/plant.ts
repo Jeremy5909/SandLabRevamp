@@ -1,7 +1,8 @@
+import Color from "color"
 import { ELEMENTS } from "../elements"
 import { Habitat } from "../libraries/habitat-embed"
 import { pickContacts, recolor } from "../sugar"
-ELEMENTS.set(Habitat.GREEN.splash, {
+ELEMENTS.set(Color("green"), {
   name: "Plant",
   key: ["p", "5"],
   update: (cell, world) => {
@@ -14,7 +15,7 @@ ELEMENTS.set(Habitat.GREEN.splash, {
 
     const changed = []
     for (const contact of allContacts) {
-      if (contact.color.splash === Habitat.BLUE.splash) {
+      if (contact.color === Color("blue")) {
         const recolored = recolor(contact, Habitat.GREEN)
         changed.push(...world.replace([contact], [recolored]))
       }

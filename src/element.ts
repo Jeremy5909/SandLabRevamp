@@ -1,5 +1,5 @@
 import { Habitat } from "./libraries/habitat-embed"
-import { shared, global } from "./script"
+import { shared, global, Cell } from "./script"
 import { distanceToBounds } from "./sugar"
 import { ELEMENTS } from "./elements"
 import Color from "color"
@@ -8,10 +8,10 @@ const pointer = Habitat.getPointer()
 
 Habitat.on(
   "keydown",
-  (event) => {
-    for (const [splash, element] of ELEMENTS) {
+  (event: { key: any }) => {
+    for (const [hex, element] of ELEMENTS) {
       if (element.key.includes(event.key)) {
-        shared.brush.color = new Habitat.Splash(splash)
+        shared.brush.color = Color(hex)
         return
       }
     }
@@ -27,7 +27,7 @@ export const POINTER_FADE_RADIUS = 0.0 //0.1
 export const POINTER_CELL_SIZE = 1 / 4 //1 / 256
 let AIR_TARGET = 1 / 32
 
-export const getPointerAirTarget = (cell) => {
+export const getPointerAirTarget = (cell: Cell) => {
   if (pointer.position.x === undefined) {
     return AIR_TARGET
   }
@@ -44,4 +44,4 @@ export const getPointerAirTarget = (cell) => {
   return AIR_TARGET
 }
 
-export const SOLID = new Set([Color("yellow"), Color("green"), Color("grey")])
+export const SOLID = new Set([Color("yellow").hex(), Color("green").hex(), Color("grey").hex()])

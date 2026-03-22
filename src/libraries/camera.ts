@@ -3,10 +3,10 @@ import { Habitat } from "./habitat-embed"
 // CAMERA //
 //========//
 export const View = class {
+  position = [0.0, 0.0]
+  dimensions = [1.0, 1.0]
   constructor(options = {}) {
     Object.assign(this, {
-      position: [0.0, 0.0],
-      dimensions: [1.0, 1.0],
       ...options,
     })
   }
@@ -53,7 +53,7 @@ export const View = class {
     const [x, y] = this.position
     const [width, height] = this.dimensions
 
-    this.position = Habitat.add(this.position, multiply(subtract(center, this.position), 1 - scale))
+    this.position = Habitat.add(this.position, multiply(Habitat.subtract(center, this.position), 1 - scale))
     this.dimensions = multiply([width, height], scale)
   }
 

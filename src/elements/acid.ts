@@ -2,7 +2,9 @@ import { Habitat } from "../libraries/habitat-embed"
 import { FALL_SPEED, MIN_SIZE } from "../element"
 import { ELEMENTS } from "../elements"
 import { move, pickContacts, recolor, tryToSleep } from "../sugar"
-ELEMENTS.set(Habitat.PURPLE.splash, {
+import Color from "color"
+import { Cell } from "../script"
+ELEMENTS.set(Color("purple"), {
   name: "Acid",
   key: ["a", "6"],
   update: (cell, world) => {
@@ -13,9 +15,9 @@ ELEMENTS.set(Habitat.PURPLE.splash, {
       ...pickContacts(cell, world, "right"),
     ]
 
-    const changed = []
+    const changed: Cell[] = []
     for (const contact of allContacts) {
-      if (contact.color.splash !== Habitat.PURPLE.splash) {
+      if (contact.color !== Habitat.PURPLE) {
         const recolored = recolor(contact, Habitat.GREY)
         changed.push(...world.replace([contact], [recolored]))
       }

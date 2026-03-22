@@ -14,8 +14,7 @@ export const shared = {
   },
 }
 
-const VOID = Color("rgb(18,22,30)")
-// const BORDER = Color("black")
+const VOID = Color("rgb(6,7,10)")
 
 //------ NO SHARED CREATED BELOW THIS LINE ------//
 
@@ -40,50 +39,22 @@ export class Cell {
     Object.assign(this, {
       ...options,
     })
-    this.position = [this.bounds.left, this.bounds.top]
-    this.dimensions = [(this.bounds.right - this.bounds.left), (this.bounds.bottom - this.bounds.top)]
+    const width = this.bounds.right - this.bounds.left
+    const height = this.bounds.bottom - this.bounds.top
 
-    // Internal
+    this.position = [this.bounds.left, this.bounds.top]
+    this.dimensions = [width, height]
     this.birth = shared.clock
 
-    // Caches
-    //this.splash = this.color.splash
+    if (this.bounds.left + width !== this.bounds.right)
+      console.error("bounds inconsistent", this.bounds.left + width, this.bounds.right)
+    if (this.bounds.right - width !== this.bounds.left)
+      console.error("bounds inconsistent", this.bounds.right - width, this.bounds.left)
+    if (this.bounds.top + height !== this.bounds.bottom)
+      console.error("bounds inconsistent", this.bounds.top + height, this.bounds.bottom)
+    if (this.bounds.bottom - height !== this.bounds.top)
+      console.error("bounds inconsistent", this.bounds.bottom - height, this.bounds.top)
 
-    const x = this.bounds.left
-    const y = this.bounds.top
-    this.position = [x, y]
-
-
-    // Check for rounding errors
-    const widthTest1 = this.bounds.left + this.bounds.right - this.bounds.left === this.bounds.right
-    const widthTest2 = this.bounds.right - this.bounds.right - this.bounds.left === this.bounds.left
-
-    const heightTest1 = this.bounds.top + this.bounds.bottom - this.bounds.top === this.bounds.bottom
-    const heightTest2 = this.bounds.bottom - this.bounds.bottom - this.bounds.top === this.bounds.top
-
-    if (!widthTest1) {
-      console.error("Cell bounds are not consistent with dimensions", this.bounds.left + this.bounds.right - this.bounds.left, this.bounds.right)
-    }
-
-    if (!widthTest2) {
-      console.error("Cell bounds are not consistent with dimensions", this.bounds.right - this.bounds.right - this.bounds.left, this.bounds.left)
-    }
-
-    if (!heightTest1) {
-      console.error(
-        "Cell bounds are not consistent with dimensions",
-        this.bounds.top + this.bounds.bottom - this.bounds.top,
-        this.bounds.bottom,
-      )
-    }
-
-    if (!heightTest2) {
-      console.error(
-        "Cell bounds are not consistent with dimensions",
-        this.bounds.bottom - this.bounds.bottom - this.bounds.top,
-        this.bounds.top,
-      )
-    }
   }
 
   clear(image: ImageData) {
@@ -163,7 +134,7 @@ const setImageAlpha = (image: ImageData, alpha: number) => {
 class World {
   cells: Set<Cell>
   caches: { left: Map<any, any>; right: Map<any, any>; top: Map<any, any>; bottom: Map<any, any> }
-  constructor({ color = Color("black") } = {}) {
+  constructor({ color = Color("rgb(23,29,40)") } = {}) {
     // Properties
     this.cells = new Set()
 
@@ -353,7 +324,7 @@ AXIS.y.adjacent = AXIS.x
 // GLOBAL //
 //========//
 export const global: { world: World, camera: any, image: ImageData | undefined } = {
-  world: new World({ color: Habitat.GREY }),
+  world: new World({ color: Color("rgb(55,67,98)") }),
   camera: new View(),
   image: undefined,
 }
@@ -365,7 +336,7 @@ const stage = new Habitat.Stage({ speed: 2.0, paused: false })
 
 stage.start = (context: CanvasRenderingContext2D) => {
   const { canvas } = context
-  canvas.style.backgroundColor = Color("black").hex()
+  canvas.style.backgroundColor = VOID.hex()
 }
 
 stage.resize = (context: CanvasRenderingContext2D) => {
@@ -410,7 +381,7 @@ stage.update = (_context: CanvasRenderingContext2D) => {
       continue
     }
 
-    const element = ELEMENTS.get(cell.color)
+    const element = ELEMENTS.get(cell.color.hex())
 
     if (element === undefined) {
       continue

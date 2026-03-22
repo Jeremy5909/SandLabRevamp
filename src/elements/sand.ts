@@ -1,9 +1,10 @@
+import Color from "color"
 import { FALL_SPEED, MIN_SIZE } from "../element"
 import { ELEMENTS } from "../elements"
 import { Habitat } from "../libraries/habitat-embed"
 import { move, split, tryToSleep } from "../sugar"
 
-ELEMENTS.set(Habitat.YELLOW.splash, {
+ELEMENTS.set(Color("yellow").hex(), {
   name: "Sand",
   key: ["s", "1"],
   update: (cell, world) => {

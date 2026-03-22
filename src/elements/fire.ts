@@ -2,7 +2,8 @@ import { Habitat } from "../libraries/habitat-embed"
 import { FALL_SPEED } from "../element"
 import { ELEMENTS } from "../elements"
 import { move, recolor, tryToSleep } from "../sugar"
-ELEMENTS.set(Habitat.RED.splash, {
+import Color from "color"
+ELEMENTS.set(Color("red"), {
   name: "Fire",
   key: ["f", "3"],
   update: (cell, world) => {

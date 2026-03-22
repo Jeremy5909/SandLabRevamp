@@ -1,10 +1,9 @@
 import Color from "color"
 import { getPointerAirTarget, MIN_SIZE } from "../element"
 import { ELEMENTS } from "../elements"
-import { Habitat } from "../libraries/habitat-embed"
 import { split, tryToSleep } from "../sugar"
-export const AIR_SPLASH = Color("grey")
-ELEMENTS.set(AIR_SPLASH, {
+export const AIR_SPLASH = Color("rgb(55,67,98)")
+ELEMENTS.set(AIR_SPLASH.hex(), {
   name: "Air",
   key: ["0"],
   update: (cell, world) => {

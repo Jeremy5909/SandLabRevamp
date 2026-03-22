@@ -38,19 +38,24 @@ export const split = (cell: Cell, [rows, columns]: [number, number]) => {
 
 // Chop a cell into smaller cells along an axis
 // The targets are the positions along the axis where the cells should be chopped
-const chop = (cell: Cell, axis, targets) => {
-  if (targets.length === 0) {
-    return [cell]
-  }
+const chop = (cell: Cell, axis: string | number, targets) => {
+  if (targets.length === 0) return [cell]
 
   const direction = AXIS[axis]
 
   targets = targets
+    .filter(t => t > cell.bounds[direction.min] && t < cell.bounds[direction.max])
     .sort((a, b) => a - b)
-    .filter((v, i) => {
-      const previous = targets[i - 1]
-      return previous === undefined || v !== previous
-    })
+    .filter((v, i, arr) => arr[i - 1] !== v)  // dedupe
+
+  // targets = targets
+  //   .sort((a, b) => a - b)
+  //   .filter((v, i) => {
+  //     const previous = targets[i - 1]
+  //     return previous === undefined || v !== previous
+  //   })
+  if (targets.length === 0) return [cell]
+
 
   const cells: Cell[] = []
   let currentTarget = cell.bounds[direction.min]
@@ -383,7 +388,7 @@ export const move = (cell: Cell, world, edge, speed, minSize = 0) => {
   const water = cell
 
   // If there isn't solid below, fall
-  if (below.snips.every((c) => !SOLID.has(c.color) && c.color !== cell.color)) {
+  if (below.snips.every((c) => !SOLID.has(c.color.hex()) && c.color.hex() !== cell.color.hex())) {
     const movedCells = swapSnips(water, below.snips, edge)
     return [
       [cell, ...below.contacts],
@@ -392,7 +397,7 @@ export const move = (cell: Cell, world, edge, speed, minSize = 0) => {
   }
 
   // If there are some gaps below, fall into those bits
-  const gaps = below.snips.filter((c) => !SOLID.has(c.color) && c.color !== cell.color)
+  const gaps = below.snips.filter((c) => !SOLID.has(c.color.hex()) && c.color.hex() !== cell.color.hex())
   if (gaps.length > 0) {
     // Cut myself up into gap-sized pieces
     const targets = gaps.map((v) => [v.bounds[direction.min], v.bounds[direction.max]]).flat()
@@ -434,7 +439,7 @@ const sleep = (cell: Cell, world, edge, filter) => {
   // If we find a cell that we can merge with, we'll merge with it and return true
   for (const candidate of candidates) {
     // If the candidate is a different color, we can't merge with it
-    if (!equals(candidate.color, cell.color)) {
+    if (!equals(candidate.color.hex(), cell.color.hex())) {
       continue
     }
 

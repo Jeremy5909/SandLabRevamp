@@ -2,7 +2,8 @@ import { Habitat } from "../libraries/habitat-embed"
 import { FALL_SPEED, MIN_SIZE } from "../element"
 import { move, tryToSleep } from "../sugar"
 import { ELEMENTS } from "../elements"
-ELEMENTS.set(Habitat.BLUE.splash, {
+import Color from "color"
+ELEMENTS.set(Color("blue"), {
   name: "Water",
   key: ["w", "2"],
   update: (cell, world) => {
