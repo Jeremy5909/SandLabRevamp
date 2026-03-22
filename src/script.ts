@@ -15,6 +15,7 @@ export const shared = {
 }
 
 const VOID = Color("rgb(6,7,10)")
+const VOID_RGB = Color("rgb(6,7,10)").rgb().array()
 
 //------ NO SHARED CREATED BELOW THIS LINE ------//
 
@@ -25,6 +26,8 @@ export class Cell {
   birth = shared.clock
   //splash: any
   color = VOID
+  hex = VOID.hex()
+  rgb = VOID.rgb().array()
   bounds = {
     left: 0.0,
     right: 1.0,
@@ -39,6 +42,9 @@ export class Cell {
     Object.assign(this, {
       ...options,
     })
+    this.hex = this.color.hex()
+    this.rgb = this.color.rgb().array()
+
     const width = this.bounds.right - this.bounds.left
     const height = this.bounds.bottom - this.bounds.top
 
@@ -58,10 +64,15 @@ export class Cell {
   }
 
   clear(image: ImageData) {
-    const { color: color } = this
+    const { color, rgb } = this
+
     this.color = VOID
+    this.rgb = VOID_RGB
+
     this.draw(image)
+
     this.color = color
+    this.rgb = rgb
   }
 
   draw(image: ImageData) {
@@ -78,7 +89,7 @@ export class Cell {
 
     let i = getPixelIndex(image, left, top)
 
-    // Set the image data of every pixel in the cell
+    // Set the image data of every pixel in the ell
     // The border is 1 pixel thick and void colored
     let BORDER_WIDTH = Math.min(1, Math.min(drawnWidth, drawnHeight) / 10)
     if (BORDER_WIDTH < 1) {
@@ -90,7 +101,7 @@ export class Cell {
     }
 
     //const fillcolor = lerp([[0, 0, 0], GREEN], area ** 0.25).map((v) => Math.floor(v))
-    const fillcolor = this.color
+    const fillcolor = this.rgb
 
     for (let y = top; y <= bottom; y++) {
       for (let x = left; x <= right; x++) {
@@ -101,12 +112,11 @@ export class Cell {
             y < top + BORDER_WIDTH ||
             y > bottom - BORDER_WIDTH)
 
-        const color = (isBorder ? VOID : fillcolor);
-        const color1 = color.rgb().array()
+        const color = (isBorder ? VOID_RGB : fillcolor);
 
-        image.data[i + 0] = color1[0]!
-        image.data[i + 1] = color1[1]!
-        image.data[i + 2] = color1[2]!
+        image.data[i + 0] = color[0]!
+        image.data[i + 1] = color[1]!
+        image.data[i + 2] = color[2]!
         i += 4
       }
       i += (image.width - drawnWidth - 1) * 4
@@ -381,7 +391,7 @@ stage.update = (_context: CanvasRenderingContext2D) => {
       continue
     }
 
-    const element = ELEMENTS.get(cell.color.hex())
+    const element = ELEMENTS.get(cell.hex)
 
     if (element === undefined) {
       continue
@@ -400,7 +410,7 @@ stage.update = (_context: CanvasRenderingContext2D) => {
   if (pointer.down) {
     const color = shared.brush.color
     const cell = world.pick(camera.cast(Habitat.scale(pointer.position, devicePixelRatio)))
-    const canWrite = cell && (color.hex() === AIR_SPLASH.hex() || cell.color.hex() === AIR_SPLASH.hex())
+    const canWrite = cell && (color.hex() === AIR_SPLASH.hex() || cell.hex === AIR_SPLASH.hex())
     if (canWrite) {
       const newCell = recolor(cell, color)
       world.replace([cell], [newCell])

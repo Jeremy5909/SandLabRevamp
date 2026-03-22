@@ -536,12 +536,11 @@ const HabitatFrogasaurus = {}
   //====== ./array.js ======
   {
     HabitatFrogasaurus["./array.js"] = {}
-    const shuffleArray = (array) => {
+    function shuffleArray<T>(array: T[]) {
       // Go backwards through the array
       for (let i = array.length - 1; i > 0; i--) {
         // Swap each value with a random value before it (which might include itself)
-        const j = Math.floor(Math.random() * (i + 1))
-          ;[array[i], array[j]] = [array[j], array[i]]
+        const j = Math.floor(Math.random() * (i + 1));[array[i], array[j]] = [array[j], array[i]]
       }
       return array
     }
