@@ -5,8 +5,10 @@ import { getPointer } from "./libraries/pointer"
 import { GREEN, SILVER, Splash, YELLOW } from "./libraries/colour"
 import { scale } from "./libraries/vector"
 import { lerp } from "./libraries/lerp"
+import type { Cell } from "./core/Cell"
+import type { World } from "./core/World"
 
-export const ELEMENTS = new Map()
+export const ELEMENTS = new Map<number, { name: string, key: [string, string], update: ((cell: Cell, world: World) => any) | undefined }>()
 const pointer = getPointer()
 
 on(
