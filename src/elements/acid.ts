@@ -1,6 +1,5 @@
 import { Habitat } from "../libraries/habitat-embed"
-import { FALL_SPEED, MIN_SIZE } from "../element"
-import { ELEMENTS } from "../elements"
+import { ELEMENTS, FALL_SPEED, MIN_SIZE } from "../element"
 import { move, pickContacts, recolour, tryToSleep } from "../sugar"
 ELEMENTS.set(Habitat.PURPLE.splash, {
   name: "Acid",

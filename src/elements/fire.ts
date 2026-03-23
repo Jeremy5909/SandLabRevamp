@@ -1,6 +1,5 @@
 import { Habitat } from "../libraries/habitat-embed"
-import { FALL_SPEED } from "../element"
-import { ELEMENTS } from "../elements"
+import { ELEMENTS, FALL_SPEED } from "../element"
 import { move, recolour, tryToSleep } from "../sugar"
 ELEMENTS.set(Habitat.RED.splash, {
   name: "Fire",

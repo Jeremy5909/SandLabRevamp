@@ -10,7 +10,7 @@ const wrapSplashNumber = (number: number) => {
 const getThreeDigits = (number: number) => {
   const chars = number.toString().padStart(3, "0").split("")
   const digits = chars.map((v) => parseInt(v))
-  return digits
+  return digits as [number, number, number]
 }
 
 //=========//
@@ -29,26 +29,24 @@ export class Colour extends Array<number> {
     this.push(alpha)
   }
 
-  toString(): string {
+  override toString(): string {
     const hex = (v: number) => v.toString(16).padStart(2, "0")
-    const r = hex(this.red)
-    const g = hex(this.green)
-    const b = hex(this.blue)
+    const r = hex(this.red!)
+    const g = hex(this.green!)
+    const b = hex(this.blue!)
     if (this.alpha === 255) return `#${r}${g}${b}`
-    return `#${r}${g}${b}${hex(this.alpha)}`
+    return `#${r}${g}${b}${hex(this.alpha!)}`
   }
 }
 
 export class Splash extends Colour {
-  readonly splash: number
-
   constructor(number: number) {
     const wrappedNumber = wrapSplashNumber(number)
     const [hundreds, tens, ones] = getThreeDigits(wrappedNumber)
     const red = RED_SPLASH_VALUES[hundreds]
     const green = GREEN_SPLASH_VALUES[tens]
     const blue = BLUE_SPLASH_VALUES[ones]
-    super(red, green, blue)
+    super(red!, green!, blue!)
 
     Reflect.defineProperty(this, "splash", {
       value: number,
@@ -57,13 +55,6 @@ export class Splash extends Colour {
       configurable: false
     })
   }
-}
-
-//===========//
-// FUNCTIONS //
-//===========//
-const showColour = (colour) => {
-  console.log("%c   ", `background-color: ${new Colour(...colour)}`)
 }
 
 //===========//

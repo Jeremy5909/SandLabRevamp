@@ -7,7 +7,7 @@ import { AXIS, Cell, DIRECTION, shared, World } from "./script"
 import { Habitat } from "./libraries/habitat-embed"
 import { Colour } from "./libraries/colour"
 
-export const split = (cell: Cell, [rows, columns]) => {
+export const split = (cell: Cell, [rows, columns]: [number, number]) => {
   const { left, right, top, bottom } = cell.bounds
   const [width, height] = cell.dimensions
 
@@ -84,7 +84,7 @@ const chop = (cell: Cell, axis: string, targets: number[]) => {
 // From an array of cells, return a single cell that encompasses all of them
 // This assumes that the cells are all connected via touching
 // The cells can be in any order and can have different dimensions
-const merge = (cells: Cell[], colour = cells[0].colour) => {
+const merge = (cells: Cell[], colour = cells[0]!.colour) => {
   if (cells.length === 0) {
     throw new Error("Cannot merge 0 cells")
   }
@@ -155,6 +155,7 @@ const getNeighbour = (cell: Cell, world: World, edge: string) => {
     if (max !== neighbour.bounds[direction.max]) continue
     return neighbour
   }
+  return undefined
 }
 
 // Pick an array of cells that are adjacent and touching the given cell

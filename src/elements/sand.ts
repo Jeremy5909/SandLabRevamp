@@ -1,5 +1,4 @@
-import { FALL_SPEED, MIN_SIZE } from "../element"
-import { ELEMENTS } from "../elements"
+import { ELEMENTS, FALL_SPEED, MIN_SIZE } from "../element"
 import { Habitat } from "../libraries/habitat-embed"
 import { move, split, tryToSleep } from "../sugar"
 

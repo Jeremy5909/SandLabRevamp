@@ -1,5 +1,4 @@
-import { FALL_SPEED } from "../element"
-import { ELEMENTS } from "../elements"
+import { ELEMENTS, FALL_SPEED } from "../element"
 import { Habitat } from "../libraries/habitat-embed"
 import { move, tryToSleep } from "../sugar"
 ELEMENTS.set(Habitat.SILVER.splash, {

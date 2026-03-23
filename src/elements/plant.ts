@@ -1,4 +1,4 @@
-import { ELEMENTS } from "../elements"
+import { ELEMENTS } from "../element"
 import { Habitat } from "../libraries/habitat-embed"
 import { pickContacts, recolour } from "../sugar"
 ELEMENTS.set(Habitat.GREEN.splash, {

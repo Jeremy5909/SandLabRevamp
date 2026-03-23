@@ -1,8 +1,8 @@
 import { Habitat } from "./libraries/habitat-embed"
 import { shared, global } from "./script"
 import { distanceToBounds } from "./sugar"
-import { ELEMENTS } from "./elements"
 
+export const ELEMENTS = new Map()
 const pointer = Habitat.getPointer()
 
 Habitat.on(

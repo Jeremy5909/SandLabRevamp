@@ -48,10 +48,10 @@ const start = (stage: Stage) => {
   // Create a context + canvas if no context was provided
   if (stage.context === undefined) {
     const canvas = document.createElement("canvas")
-    canvas.style["background-color"] = "#171d28"
-    document.body.style["background-color"] = "#06070a"
-    document.body.style["margin"] = "0px"
-    document.body.style["overflow"] = "hidden"
+    canvas.style.backgroundColor = "#171d28"
+    document.body.style.backgroundColor = "#06070a"
+    document.body.style.margin = "0px"
+    document.body.style.overflow = "hidden"
     document.body.appendChild(canvas)
     stage.context = canvas.getContext("2d")
   }
@@ -87,12 +87,12 @@ const resize = (stage: Stage) => {
   canvas.style["width"] = Math.round(scaledWidth).toString()
   canvas.style["height"] = Math.round(scaledHeight).toString()
 
-  const marginHorizontal = (innerWidth - scaledWidth) / 2
-  const marginVertical = (innerHeight - scaledHeight) / 2
-  canvas.style["margin-left"] = marginHorizontal
-  canvas.style["margin-right"] = marginHorizontal
-  canvas.style["margin-top"] = marginVertical
-  canvas.style["margin-bottom"] = marginVertical
+  const marginHorizontal = ((innerWidth - scaledWidth) / 2).toString()
+  const marginVertical = ((innerHeight - scaledHeight) / 2).toString()
+  canvas.style.marginLeft = marginHorizontal
+  canvas.style.marginRight = marginHorizontal
+  canvas.style.marginTop = marginVertical
+  canvas.style.marginBottom = marginVertical
   stage.resize(stage.context!)
 }
 const tick = (stage: Stage) => {

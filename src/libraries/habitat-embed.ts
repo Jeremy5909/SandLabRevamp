@@ -344,12 +344,12 @@ const HabitatFrogasaurus = {}
   {
     HabitatFrogasaurus["./vector.js"] = {}
 
-    const scale = (value, scale) => {
+    const scale = (value: number | any[], scale: number) => {
       if (typeof value === "number") return value * scale
-      return value.map((v) => v * scale)
+      return value.map((v: any) => v * scale)
     }
 
-    const add = (a, b) => {
+    const add = (a: any, b: any) => {
       if (typeof a === "number") {
         return a + b
       }

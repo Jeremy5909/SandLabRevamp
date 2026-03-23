@@ -1,9 +1,9 @@
 import { Habitat } from "./libraries/habitat-embed"
 import { View } from "./libraries/camera"
-import { ELEMENTS } from "./elements"
 import { AIR_SPLASH } from "./elements/air"
 import { recolour } from "./sugar"
 import { BLACK, Colour, Splash, VOID, YELLOW } from "./libraries/colour"
+import { ELEMENTS } from "./element"
 //========//
 // SHARED //
 //========//
@@ -16,6 +16,7 @@ export const shared = {
 
 //------ NO SHARED CREATED BELOW THIS LINE ------//
 
+interface Bounds { left: number, right: number, top: number, bottom: number }
 
 //======//
 // CELL //
@@ -24,9 +25,9 @@ export class Cell {
   birth: number
   colour: Colour = BLACK
   splash = BLACK.splash
-  bounds = { left: 0, right: 1, top: 0, bottom: 1 }
-  position: number[]
-  dimensions: number[]
+  bounds: Bounds = { left: 0, right: 1, top: 0, bottom: 1 }
+  position: [number, number]
+  dimensions: [number, number]
 
   constructor(options: Partial<Pick<Cell, "colour" | "bounds">> = {}) {
     // Properties
@@ -95,9 +96,6 @@ export class Cell {
       }
     }
 
-    const area = this.dimensions[0] * this.dimensions[1]
-
-    //const fillColour = lerp([[0, 0, 0], GREEN], area ** 0.25).map((v) => Math.floor(v))
     const fillColour = this.colour
 
     for (let y = top; y <= bottom; y++) {
@@ -135,12 +133,19 @@ const setImageAlpha = (image: ImageData, alpha: number) => {
   }
 }
 
+interface Caches {
+  left: Map<any, any>,
+  right: Map<any, any>,
+  top: Map<any, any>,
+  bottom: Map<any, any>,
+}
+
 //=======//
 // WORLD //
 //=======//
 export class World {
   cells: Set<Cell>
-  caches: { left: Map<any, any>; right: Map<any, any>; top: Map<any, any>; bottom: Map<any, any> }
+  caches: Caches
   constructor({ colour = Habitat.BLACK } = {}) {
     // Properties
     this.cells = new Set()
@@ -168,7 +173,8 @@ export class World {
   }
 
   cache(cell: Cell) {
-    for (const key in DIRECTION) {
+    for (const k in DIRECTION) {
+      const key = k as keyof Caches
       const cache = this.caches[key]
       const address = cell.bounds[key]
       let set = cache.get(address)
@@ -181,7 +187,8 @@ export class World {
   }
 
   uncache(cell: Cell) {
-    for (const key in DIRECTION) {
+    for (const k in DIRECTION) {
+      const key = k as keyof Caches
       const cache = this.caches[key]
       const address = cell.bounds[key]
       const set = cache.get(address)
@@ -209,7 +216,7 @@ export class World {
     return newCells
   }
 
-  pick(position: number[]) {
+  pick(position: [number, number]) {
     const [x, y] = position
     for (const cell of this.cells) {
       const [left, top] = cell.position
@@ -219,6 +226,7 @@ export class World {
         return cell
       }
     }
+    return undefined
   }
 }
 
@@ -317,7 +325,7 @@ const stage = new Habitat.Stage({ speed: 2.0, paused: false })
 
 stage.start = (context: CanvasRenderingContext2D) => {
   const { canvas } = context
-  canvas.style["background-color"] = VOID
+  canvas.style.backgroundColor = VOID.toString()
 }
 
 stage.resize = (context: CanvasRenderingContext2D) => {
