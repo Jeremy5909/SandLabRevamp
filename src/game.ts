@@ -4,7 +4,7 @@ import { AIR_SPLASH } from "./elements/air"
 import { recolour } from "./sugar"
 import { Splash, VOID, YELLOW } from "./libraries/colour"
 import { ELEMENTS } from "./element"
-import { World } from "./World"
+import { World } from "./core/World"
 
 export const shared = {
   clock: 0,

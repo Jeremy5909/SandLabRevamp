@@ -1,6 +1,6 @@
-import { Colour, BLACK, VOID } from "./libraries/colour";
-import { Habitat } from "./libraries/habitat-embed";
-import { shared, getPixelIndex } from "./game";
+import { Colour, BLACK, VOID } from "../libraries/colour";
+import { Habitat } from "../libraries/habitat-embed";
+import { shared, getPixelIndex } from "../game";
 
 export interface Bounds { left: number, right: number, top: number, bottom: number }
 

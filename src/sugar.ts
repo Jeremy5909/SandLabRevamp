@@ -3,11 +3,11 @@
 // They just make your code more readable
 
 import { SOLID } from "./element"
-import { AXIS, DIRECTION } from "./Direction"
-import { World } from "./World"
+import { AXIS, DIRECTION } from "./core/Direction"
+import { World } from "./core/World"
 import { Habitat } from "./libraries/habitat-embed"
 import { Colour } from "./libraries/colour"
-import { Cell } from "./cell"
+import { Cell } from "./core/Cell"
 import { shared } from "./game"
 
 export const split = (cell: Cell, [rows, columns]: [number, number]) => {

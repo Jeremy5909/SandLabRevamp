@@ -1,7 +1,7 @@
-import { Habitat } from "./libraries/habitat-embed";
-import { shared } from "./game";
+import { Habitat } from "../libraries/habitat-embed";
+import { shared } from "../game";
 import { DIRECTION } from "./Direction";
-import { Cell } from "./cell";
+import { Cell } from "./Cell";
 
 export interface Caches {
   left: Map<any, any>,
