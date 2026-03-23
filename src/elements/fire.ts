@@ -1,4 +1,4 @@
-import { ELEMENTS, FALL_SPEED } from "../element"
+import { ELEMENTS, FALL_SPEED, MIN_SIZE } from "../element"
 import { move, recolour, tryToSleep } from "../sugar"
 import { GREY, RED } from "../libraries/colour"
 import { oneIn, randomFrom } from "../libraries/random"
@@ -11,7 +11,7 @@ ELEMENTS.set(RED.splash, {
       return world.replace([cell], [recolour(cell, GREY)])
     }
 
-    const movements = move(cell, world, randomFrom(["left", "right", "top"]), FALL_SPEED)
+    const movements = move(cell, world, randomFrom(["left", "right", "top"]), FALL_SPEED, MIN_SIZE / 2)
     if (movements.length > 0) {
       return world.replace(...movements)
     }
