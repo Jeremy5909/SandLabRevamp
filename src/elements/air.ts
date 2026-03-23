@@ -1,7 +1,7 @@
 import { ELEMENTS, getPointerAirTarget, MIN_SIZE } from "../element"
-import { Habitat } from "../libraries/habitat-embed"
+import { GREY } from "../libraries/colour"
 import { split, tryToSleep } from "../sugar"
-export const AIR_SPLASH = Habitat.GREY.splash
+export const AIR_SPLASH = GREY.splash
 ELEMENTS.set(AIR_SPLASH, {
   name: "Air",
   key: ["0"],

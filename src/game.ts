@@ -1,10 +1,13 @@
-import { Habitat } from "./libraries/habitat-embed"
 import { View } from "./libraries/camera"
 import { AIR_SPLASH } from "./elements/air"
 import { recolour } from "./sugar"
-import { Splash, VOID, YELLOW } from "./libraries/colour"
+import { GREY, VOID, YELLOW } from "./libraries/colour"
 import { ELEMENTS } from "./element"
 import { World } from "./core/World"
+import { Stage } from "./libraries/stage"
+import { wrap } from "./libraries/math"
+import { getPointer } from "./libraries/pointer"
+import { scale } from "./libraries/vector"
 
 export const shared = {
   clock: 0,
@@ -14,7 +17,7 @@ export const shared = {
 }
 
 export const global = {
-  world: new World({ colour: Habitat.GREY }),
+  world: new World({ colour: GREY }),
   camera: new View(),
   image: undefined as undefined | ImageData,
 }
@@ -33,7 +36,7 @@ const setImageAlpha = (image: ImageData, alpha: number) => {
 //===========//
 // GAME LOOP //
 //===========//
-const stage = new Habitat.Stage({ speed: 2.0, paused: false })
+const stage = Stage({ speed: 2.0, paused: false })
 
 stage.start = (context: CanvasRenderingContext2D) => {
   const { canvas } = context
@@ -74,7 +77,7 @@ stage.tick = (context: CanvasRenderingContext2D) => {
 stage.update = (context: CanvasRenderingContext2D) => {
   const { world, image, camera } = global
 
-  shared.clock = Habitat.wrap(shared.clock + 1, 0, 999)
+  shared.clock = wrap(shared.clock + 1, 0, 999)
 
   // Update cells
   for (const cell of world.cells) {
@@ -97,10 +100,10 @@ stage.update = (context: CanvasRenderingContext2D) => {
   }
 
   // Place cells with the pointer
-  const pointer = Habitat.getPointer()
+  const pointer = getPointer()
   if (pointer.down) {
     const colour = shared.brush.colour
-    const cell = world.pick(camera.cast(Habitat.scale(pointer.position, devicePixelRatio)))
+    const cell = world.pick(camera.cast(scale(pointer.position, devicePixelRatio)))
     const canWrite = cell && (colour.splash === AIR_SPLASH || cell.colour.splash === AIR_SPLASH)
     if (canWrite) {
       const newCell = recolour(cell, colour)

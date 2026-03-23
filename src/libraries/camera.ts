@@ -1,4 +1,4 @@
-import { Habitat } from "./habitat-embed"
+import { add, subtract } from "./vector"
 //========//
 // CAMERA //
 //========//
@@ -13,7 +13,7 @@ export const View = class {
 
   // world position -> view position
   cast(position) {
-    const [x, y] = Habitat.add(position, this.position)
+    const [x, y] = add(position, this.position)
     const [width, height] = this.dimensions
     return [x / width, y / height]
   }
@@ -22,7 +22,7 @@ export const View = class {
   get(position) {
     const [x, y] = position
     const [width, height] = this.dimensions
-    return Habitat.subtract([x * width, y * height], this.position)
+    return subtract([x * width, y * height], this.position)
   }
 
   // World position at center of view
@@ -33,7 +33,7 @@ export const View = class {
   // World bounds of the view
   getBounds() {
     const a = this.position
-    const b = Habitat.add(this.position, this.dimensions)
+    const b = add(this.position, this.dimensions)
 
     return {
       left: Math.min(a[0], b[0]),
@@ -45,7 +45,7 @@ export const View = class {
 
   // Pan the view by a given amount
   pan(displacement) {
-    this.position = Habitat.add(this.position, displacement)
+    this.position = add(this.position, displacement)
   }
 
   // Zoom the view by a given amount, centered at a given point
@@ -53,7 +53,7 @@ export const View = class {
     const [x, y] = this.position
     const [width, height] = this.dimensions
 
-    this.position = Habitat.add(this.position, multiply(subtract(center, this.position), 1 - scale))
+    this.position = add(this.position, multiply(subtract(center, this.position), 1 - scale))
     this.dimensions = multiply([width, height], scale)
   }
 

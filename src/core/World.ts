@@ -1,7 +1,7 @@
-import { Habitat } from "../libraries/habitat-embed";
 import { shared } from "../game";
 import { DIRECTION } from "./Direction";
 import { Cell } from "./Cell";
+import { BLACK } from "../libraries/colour";
 
 export interface Caches {
   left: Map<any, any>,
@@ -13,7 +13,7 @@ export interface Caches {
 export class World {
   cells: Set<Cell>;
   caches: Caches;
-  constructor({ colour = Habitat.BLACK } = {}) {
+  constructor({ colour = BLACK } = {}) {
     // Properties
     this.cells = new Set();
 

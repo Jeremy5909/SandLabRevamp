@@ -1,16 +1,17 @@
-import { Habitat } from "../libraries/habitat-embed"
 import { ELEMENTS, FALL_SPEED } from "../element"
 import { move, recolour, tryToSleep } from "../sugar"
-ELEMENTS.set(Habitat.RED.splash, {
+import { GREY, RED } from "../libraries/colour"
+import { oneIn, randomFrom } from "../libraries/random"
+ELEMENTS.set(RED.splash, {
   name: "Fire",
   key: ["f", "3"],
   update: (cell, world) => {
     // Decay
-    if (Habitat.oneIn(200)) {
-      return world.replace([cell], [recolour(cell, Habitat.GREY)])
+    if (oneIn(200)) {
+      return world.replace([cell], [recolour(cell, GREY)])
     }
 
-    const movements = move(cell, world, Habitat.randomFrom(["left", "right", "top"]), FALL_SPEED)
+    const movements = move(cell, world, randomFrom(["left", "right", "top"]), FALL_SPEED)
     if (movements.length > 0) {
       return world.replace(...movements)
     }

@@ -1,5 +1,4 @@
 import { Colour, BLACK, VOID } from "../libraries/colour";
-import { Habitat } from "../libraries/habitat-embed";
 import { shared, getPixelIndex } from "../game";
 
 export interface Bounds { left: number, right: number, top: number, bottom: number }
@@ -87,11 +86,11 @@ export class Cell {
             y < top + BORDER_WIDTH ||
             y > bottom - BORDER_WIDTH);
 
-        const colour = isBorder ? Habitat.VOID : fillColour;
+        const colour = isBorder ? VOID : fillColour;
 
-        image.data[i + 0] = colour[0];
-        image.data[i + 1] = colour[1];
-        image.data[i + 2] = colour[2];
+        image.data[i + 0] = colour[0]!;
+        image.data[i + 1] = colour[1]!;
+        image.data[i + 2] = colour[2]!;
         i += 4;
       }
       i += (image.width - drawnWidth - 1) * 4;

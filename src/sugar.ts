@@ -5,10 +5,11 @@
 import { SOLID } from "./element"
 import { AXIS, DIRECTION } from "./core/Direction"
 import { World } from "./core/World"
-import { Habitat } from "./libraries/habitat-embed"
 import { Colour } from "./libraries/colour"
 import { Cell } from "./core/Cell"
 import { shared } from "./game"
+import { wrap } from "./libraries/math"
+import { shuffleArray } from "./libraries/array"
 
 export const split = (cell: Cell, [rows, columns]: [number, number]) => {
   const { left, right, top, bottom } = cell.bounds
@@ -309,7 +310,7 @@ const defaultJudge = (cells: Cell[]) => {
 const defaultCompare = (a, b = -Infinity) => a > b
 
 const defaultFilter = (cell: Cell) => {
-  const age = Habitat.wrap(shared.clock - cell.birth, 0, 999)
+  const age = wrap(shared.clock - cell.birth, 0, 999)
   return age > 0
 }
 
@@ -332,7 +333,7 @@ export const tryToSleep = (
   let winner: undefined | any = undefined
   let highScore: undefined | number = undefined
 
-  for (const edge of Habitat.shuffleArray(edges)) {
+  for (const edge of shuffleArray(edges)) {
     const replacement = sleep(cell, world, edge, filter)
     const { oldCells, newCells } = replacement
     if (newCells.length === 0) continue
@@ -431,7 +432,7 @@ const sleep = (cell: Cell, world: World, edge, filter) => {
   }
 
   // Shuffle the contacts so that we don't always merge with the same cell
-  const candidates = Habitat.shuffleArray(contacts)
+  const candidates = shuffleArray(contacts)
 
   const splitCandidates: Cell[] = []
 

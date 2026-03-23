@@ -1,7 +1,8 @@
-import { Habitat } from "../libraries/habitat-embed"
 import { ELEMENTS, FALL_SPEED, MIN_SIZE } from "../element"
 import { move, tryToSleep } from "../sugar"
-ELEMENTS.set(Habitat.BLUE.splash, {
+import { BLUE } from "../libraries/colour"
+import { randomFrom } from "../libraries/random"
+ELEMENTS.set(BLUE.splash, {
   name: "Water",
   key: ["w", "2"],
   update: (cell, world) => {
@@ -10,7 +11,7 @@ ELEMENTS.set(Habitat.BLUE.splash, {
       return world.replace(...movements)
     }
 
-    const slideDirection = Habitat.randomFrom(["left", "right"])
+    const slideDirection = randomFrom(["left", "right"])
     const slides = move(cell, world, slideDirection, FALL_SPEED, MIN_SIZE / 2)
     if (slides.length > 0) {
       return world.replace(...slides)

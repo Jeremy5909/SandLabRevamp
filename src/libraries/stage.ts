@@ -1,4 +1,6 @@
-import { Habitat } from "./habitat-embed"
+import { on } from "./event"
+import { keyDown } from "./keyboard"
+import { struct } from "./struct"
 
 export interface Stage {
   context: CanvasRenderingContext2D | undefined | null,
@@ -15,8 +17,8 @@ export interface Stage {
   update: (canvas: CanvasRenderingContext2D | null) => void,
 }
 
-export function Stage(properties: Stage) {
-  const template = Habitat.struct<Stage>({
+export function Stage(properties: Partial<Stage>) {
+  const template = struct<Stage>({
     context: undefined,
     scale: 1.0,
     aspectRatio: undefined,
@@ -56,8 +58,8 @@ const start = (stage: Stage) => {
     stage.context = canvas.getContext("2d")
   }
 
-  Habitat.on("resize", () => resize(stage))
-  Habitat.on(Habitat.keyDown(" "), () => (stage.paused = !stage.paused))
+  on("resize", () => resize(stage))
+  on(keyDown(" "), () => (stage.paused = !stage.paused))
 
   stage.start(stage.context)
   resize(stage)

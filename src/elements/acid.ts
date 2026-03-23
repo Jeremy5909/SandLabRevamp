@@ -1,7 +1,8 @@
-import { Habitat } from "../libraries/habitat-embed"
 import { ELEMENTS, FALL_SPEED, MIN_SIZE } from "../element"
 import { move, pickContacts, recolour, tryToSleep } from "../sugar"
-ELEMENTS.set(Habitat.PURPLE.splash, {
+import { GREY, PURPLE } from "../libraries/colour"
+import { randomFrom } from "../libraries/random"
+ELEMENTS.set(PURPLE.splash, {
   name: "Acid",
   key: ["a", "6"],
   update: (cell, world) => {
@@ -14,8 +15,8 @@ ELEMENTS.set(Habitat.PURPLE.splash, {
 
     const changed = []
     for (const contact of allContacts) {
-      if (contact.colour.splash !== Habitat.PURPLE.splash) {
-        const recoloured = recolour(contact, Habitat.GREY)
+      if (contact.colour.splash !== PURPLE.splash) {
+        const recoloured = recolour(contact, GREY)
         changed.push(...world.replace([contact], [recoloured]))
       }
     }
@@ -25,7 +26,7 @@ ELEMENTS.set(Habitat.PURPLE.splash, {
       return world.replace(...movements)
     }
 
-    const slideDirection = Habitat.randomFrom(["left", "right"])
+    const slideDirection = randomFrom(["left", "right"])
     const slides = move(cell, world, slideDirection, FALL_SPEED, MIN_SIZE / 2)
     if (slides.length > 0) {
       return world.replace(...slides)

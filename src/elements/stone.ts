@@ -1,7 +1,7 @@
 import { ELEMENTS, FALL_SPEED } from "../element"
-import { Habitat } from "../libraries/habitat-embed"
+import { SILVER } from "../libraries/colour"
 import { move, tryToSleep } from "../sugar"
-ELEMENTS.set(Habitat.SILVER.splash, {
+ELEMENTS.set(SILVER.splash, {
   name: "Stone",
   key: ["t", "4"],
   update: (cell, world) => {
