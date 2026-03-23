@@ -1,10 +1,12 @@
-export const lerp = ([a, b], distance) => {
+import { add, scale, subtract } from "./vector"
+
+export const lerp = ([a, b], distance: number) => {
   const range = subtract(b, a)
   const displacement = scale(range, distance)
   return add(a, displacement)
 }
 
-const bilerp = ([a, b, c, d], displacement) => {
+const bilerp = ([a, b, c, d], displacement: [number, number]) => {
   const [dx, dy] = displacement
   const la = lerp([a, b], dx)
   const lb = lerp([d, c], dx)

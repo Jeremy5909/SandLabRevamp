@@ -2,20 +2,20 @@ const maxRandomNumberIndex = 2 ** 14
 const randomNumbersBuffer = new Uint32Array(maxRandomNumberIndex)
 let randomNumberIndex = Infinity
 
-export const random = () => {
+export function random() {
   if (randomNumberIndex >= maxRandomNumberIndex) {
     crypto.getRandomValues(randomNumbersBuffer)
     randomNumberIndex = 0
   }
   const result = randomNumbersBuffer[randomNumberIndex]
   randomNumberIndex++
-  return result
+  return result!
 }
 
-export const randomFrom = (array) => {
+export function randomFrom(array: any[]) {
   const index = random() % array.length
   return array[index]
 }
 
-export const oneIn = (times) => random() % times < 1
-export const maybe = (chance) => oneIn(1 / chance)
+export const oneIn = (times: number) => random() % times < 1
+export const maybe = (chance: number) => oneIn(1 / chance)

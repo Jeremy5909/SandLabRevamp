@@ -5,11 +5,11 @@ let isKeyboardTracked = false
 const getKeyboard = () => {
   if (isKeyboardTracked) return keyboard
   isKeyboardTracked = true
-  on("keydown", (e) => {
+  on("keydown", (e: KeyboardEvent) => {
     keyboard[e.key] = true
   })
 
-  on("keyup", (e) => {
+  on("keyup", (e: KeyboardEvent) => {
     keyboard[e.key] = false
   })
 
@@ -17,19 +17,19 @@ const getKeyboard = () => {
 }
 
 let isKeyDownTracked = false
-export const keyDown = (key) => {
+export const keyDown = (key: string) => {
   if (!isKeyDownTracked) {
     isKeyDownTracked = true
-    on("keydown", (e) => fireEvent(`keyDown("${e.key}")`), { passive: false })
+    on("keydown", (e: KeyboardEvent) => fireEvent(`keyDown("${e.key}")`), { passive: false })
   }
   return `keyDown("${key}")`
 }
 
 let isKeyUpTracked = false
-const keyUp = (key) => {
+const keyUp = (key: string) => {
   if (!isKeyUpTracked) {
     isKeyUpTracked = true
-    on("keyup", (e) => fireEvent(`keyUp("${e.key}")`), { passive: false })
+    on("keyup", (e: KeyboardEvent) => fireEvent(`keyUp("${e.key}")`), { passive: false })
   }
   return `keyUp("${key}")`
 }

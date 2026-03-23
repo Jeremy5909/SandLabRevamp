@@ -1,7 +1,7 @@
 let isPointerTracked = false
 const pointer = {
-  position: [undefined, undefined],
-  down: undefined,
+  position: [undefined, undefined] as [undefined, undefined] | number,
+  down: undefined as undefined | boolean,
 }
 
 export const getPointer = () => {

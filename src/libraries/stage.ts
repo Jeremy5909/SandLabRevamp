@@ -5,7 +5,7 @@ import { struct } from "./struct"
 export interface Stage {
   context: CanvasRenderingContext2D | undefined | null,
   scale: number,
-  aspectRatio: [number, number],
+  aspectRatio: [number, number] | undefined,
 
   speed: number,
   clock: number,

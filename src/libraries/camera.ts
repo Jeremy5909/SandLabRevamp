@@ -3,23 +3,23 @@ import { add, subtract } from "./vector"
 // CAMERA //
 //========//
 export const View = class {
+  position: [number, number] = [0, 0]
+  dimensions: [number, number] = [1, 1]
   constructor(options = {}) {
     Object.assign(this, {
-      position: [0.0, 0.0],
-      dimensions: [1.0, 1.0],
       ...options,
     })
   }
 
   // world position -> view position
-  cast(position) {
+  cast(position: [number, number]) {
     const [x, y] = add(position, this.position)
     const [width, height] = this.dimensions
     return [x / width, y / height]
   }
 
   // view position -> world position
-  get(position) {
+  get(position: [number, number]) {
     const [x, y] = position
     const [width, height] = this.dimensions
     return subtract([x * width, y * height], this.position)
@@ -44,12 +44,12 @@ export const View = class {
   }
 
   // Pan the view by a given amount
-  pan(displacement) {
+  pan(displacement: [number, number]) {
     this.position = add(this.position, displacement)
   }
 
   // Zoom the view by a given amount, centered at a given point
-  zoom(scale, center = this.getCenter()) {
+  zoom(scale: number, center = this.getCenter()) {
     const [x, y] = this.position
     const [width, height] = this.dimensions
 
@@ -58,14 +58,14 @@ export const View = class {
   }
 
   // Is a given world position within the view?
-  contains(position) {
+  contains(position: [number, number]) {
     const { left, right, top, bottom } = this.getBounds()
     const [x, y] = position
 
     return x >= left && x <= right && y >= top && y <= bottom
   }
 
-  resize(dimensions) {
+  resize(dimensions: [number, number]) {
     this.dimensions = dimensions
   }
 }
