@@ -31,11 +31,11 @@ export const POINTER_CELL_SIZE = 1 / 4 //1 / 256
 let AIR_TARGET = 1 / 32
 
 export const getPointerAirTarget = (cell) => {
-  if (pointer.position.x === undefined) {
+  if (pointer.position[0] === undefined) {
     return AIR_TARGET
   }
 
-  const pointerPosition = global.camera.cast(scale(pointer.position, devicePixelRatio))
+  const pointerPosition = global.camera.cast(scale(pointer.position as [number, number], devicePixelRatio) as [number, number])
   const distanceFromPointer = distanceToBounds(pointerPosition, cell.bounds)
 
   if (distanceFromPointer < POINTER_RADIUS) {

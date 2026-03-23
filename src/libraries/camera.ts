@@ -13,16 +13,16 @@ export const View = class {
 
   // world position -> view position
   cast(position: [number, number]) {
-    const [x, y] = add(position, this.position)
+    const [x, y] = add(position, this.position) as [number, number]
     const [width, height] = this.dimensions
-    return [x / width, y / height]
+    return [x / width, y / height] as [number, number]
   }
 
   // view position -> world position
   get(position: [number, number]) {
     const [x, y] = position
     const [width, height] = this.dimensions
-    return subtract([x * width, y * height], this.position)
+    return subtract([x * width, y * height], this.position) as [number, number]
   }
 
   // World position at center of view

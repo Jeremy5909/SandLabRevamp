@@ -1,6 +1,6 @@
 let isPointerTracked = false
 const pointer = {
-  position: [undefined, undefined] as [undefined, undefined] | number,
+  position: [undefined, undefined] as [undefined, undefined] | [number, number],
   down: undefined as undefined | boolean,
 }
 
