@@ -67,6 +67,8 @@ stage.tick = (context: CanvasRenderingContext2D) => {
   const { image, camera } = global
   const [x, y] = camera.get([0, 0])
 
+  console.log("cells:", global.world.cells.size)
+
   // debug: redraw entire world
   //global.world.draw(image)
 
