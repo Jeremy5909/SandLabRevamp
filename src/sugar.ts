@@ -3,9 +3,12 @@
 // They just make your code more readable
 
 import { SOLID } from "./element"
-import { AXIS, Cell, DIRECTION, shared, World } from "./script"
+import { AXIS, DIRECTION } from "./Direction"
+import { World } from "./World"
 import { Habitat } from "./libraries/habitat-embed"
 import { Colour } from "./libraries/colour"
+import { Cell } from "./cell"
+import { shared } from "./game"
 
 export const split = (cell: Cell, [rows, columns]: [number, number]) => {
   const { left, right, top, bottom } = cell.bounds

@@ -6,5 +6,4 @@ import "./elements/stone.ts";
 import "./elements/water.ts";
 import "./elements/acid.ts";
 
-import "./sugar.ts";
-import "./script.ts";
+import "./game.ts";

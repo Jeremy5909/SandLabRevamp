@@ -1,5 +1,5 @@
 import { Habitat } from "./libraries/habitat-embed"
-import { shared, global } from "./script"
+import { global, shared } from "./game"
 import { distanceToBounds } from "./sugar"
 
 export const ELEMENTS = new Map()
