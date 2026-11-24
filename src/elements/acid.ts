@@ -2,36 +2,31 @@ import { ELEMENTS, FALL_SPEED, MIN_SIZE } from "../element"
 import { move, pickContacts, recolour, tryToSleep } from "../sugar"
 import { GREY, PURPLE } from "../libraries/colour"
 import { randomFrom } from "../libraries/random"
+import { EDGES, type Edge } from "../core/Direction"
+import type { Cell } from "../core/Cell"
+
 ELEMENTS.set(PURPLE.splash, {
-  name: "Acid",
-  key: ["a", "6"],
-  update: (cell, world) => {
-    const allContacts = [
-      ...pickContacts(cell, world, "top"),
-      ...pickContacts(cell, world, "bottom"),
-      ...pickContacts(cell, world, "left"),
-      ...pickContacts(cell, world, "right"),
-    ]
+	name: "Acid",
+	key: ["a", "6"],
+	update: (cell, world) => {
+		// Dissolve everything we touch into air
+		const dissolved: Cell[] = []
+		for (const contact of EDGES.flatMap((edge) => pickContacts(cell, world, edge))) {
+			if (contact.colour.splash !== PURPLE.splash) {
+				dissolved.push(...world.replace([contact], [recolour(contact, GREY)]))
+			}
+		}
 
-    const changed = []
-    for (const contact of allContacts) {
-      if (contact.colour.splash !== PURPLE.splash) {
-        const recoloured = recolour(contact, GREY)
-        changed.push(...world.replace([contact], [recoloured]))
-      }
-    }
+		const movements = move(cell, world, "bottom", FALL_SPEED)
+		if (movements) {
+			return [...dissolved, ...world.replace(...movements)]
+		}
 
-    const movements = move(cell, world, "bottom", FALL_SPEED)
-    if (movements.length > 0) {
-      return world.replace(...movements)
-    }
+		const slides = move(cell, world, randomFrom<Edge>(["left", "right"]), FALL_SPEED, MIN_SIZE / 2)
+		if (slides) {
+			return [...dissolved, ...world.replace(...slides)]
+		}
 
-    const slideDirection = randomFrom(["left", "right"])
-    const slides = move(cell, world, slideDirection, FALL_SPEED, MIN_SIZE / 2)
-    if (slides.length > 0) {
-      return world.replace(...slides)
-    }
-
-    return tryToSleep(cell, world, { filter: () => true })
-  },
+		return [...dissolved, ...tryToSleep(cell, world, { filter: () => true })]
+	},
 })

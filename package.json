@@ -1,10 +1,16 @@
 {
+  "name": "sandlab-revamp",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup src/index.ts --clean",
+    "dev": "tsup src/index.ts --clean --watch",
+    "typecheck": "tsc",
+    "format": "prettier --write src"
+  },
   "devDependencies": {
+    "prettier": "^3.6.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
-  },
-  "scripts": {
-    "build": "tsup src/index.ts  --clean",
-    "dev": "tsup src/index.ts  --clean --watch"
   }
 }

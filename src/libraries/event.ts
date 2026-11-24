@@ -1,12 +1,13 @@
-export const fireEvent = (name, options: any = {}) => {
-  const { target = window, bubbles = true, cancelable = true, ...data } = options
-  const event = new Event(name, { bubbles, cancelable })
-  for (const key in data) {
-    event[key] = data[key]
-  }
-  target.dispatchEvent(event)
+export const fireEvent = (name: string) => {
+	window.dispatchEvent(new Event(name, { bubbles: true, cancelable: true }))
 }
 
-export const on = (event: string, func: any, options?: boolean | AddEventListenerOptions) => {
-  return addEventListener(event, func, options)
+export function on<K extends keyof WindowEventMap>(
+	event: K,
+	listener: (event: WindowEventMap[K]) => void,
+	options?: boolean | AddEventListenerOptions,
+): void
+export function on(event: string, listener: (event: Event) => void, options?: boolean | AddEventListenerOptions): void
+export function on(event: string, listener: (event: Event) => void, options?: boolean | AddEventListenerOptions) {
+	addEventListener(event, listener, options)
 }

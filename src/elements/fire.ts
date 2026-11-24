@@ -2,19 +2,22 @@ import { ELEMENTS, FALL_SPEED, MIN_SIZE } from "../element"
 import { move, recolour, tryToSleep } from "../sugar"
 import { GREY, RED } from "../libraries/colour"
 import { oneIn, randomFrom } from "../libraries/random"
-ELEMENTS.set(RED.splash, {
-  name: "Fire",
-  key: ["f", "3"],
-  update: (cell, world) => {
-    // Decay
-    if (oneIn(200)) {
-      return world.replace([cell], [recolour(cell, GREY)])
-    }
+import type { Edge } from "../core/Direction"
 
-    const movements = move(cell, world, randomFrom(["left", "right", "top"]), FALL_SPEED, MIN_SIZE / 2)
-    if (movements.length > 0) {
-      return world.replace(...movements)
-    }
-    return tryToSleep(cell, world, { filter: () => true })
-  },
+ELEMENTS.set(RED.splash, {
+	name: "Fire",
+	key: ["f", "3"],
+	update: (cell, world) => {
+		// Decay
+		if (oneIn(200)) {
+			return world.replace([cell], [recolour(cell, GREY)])
+		}
+
+		const movements = move(cell, world, randomFrom<Edge>(["left", "right", "top"]), FALL_SPEED, MIN_SIZE / 2)
+		if (movements) {
+			return world.replace(...movements)
+		}
+
+		return tryToSleep(cell, world, { filter: () => true })
+	},
 })

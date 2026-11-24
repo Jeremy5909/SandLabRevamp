@@ -3,315 +3,235 @@
 // They just make your code more readable
 
 import { SOLID } from "./element"
-import { AXIS, DIRECTION } from "./core/Direction"
-import { World } from "./core/World"
-import { Colour } from "./libraries/colour"
-import { Cell } from "./core/Cell"
+import { AXIS, DIRECTION, EDGES, type Axis, type Edge } from "./core/Direction"
+import type { World } from "./core/World"
+import type { Colour } from "./libraries/colour"
+import { Cell, type Bounds } from "./core/Cell"
 import { shared } from "./game"
 import { wrap } from "./libraries/math"
 import { shuffleArray } from "./libraries/array"
+import type { Vector2 } from "./libraries/vector"
 
+// A replacement is a list of cells to remove from the world and a list of cells to add
+export type Replacement = [oldCells: Cell[], newCells: Cell[]]
+
+// Split a cell into a grid of equally sized cells
 export const split = (cell: Cell, [rows, columns]: [number, number]) => {
-  const { left, right, top, bottom } = cell.bounds
-  const [width, height] = cell.dimensions
+	const { left, right, top, bottom } = cell.bounds
+	const [width, height] = cell.dimensions
 
-  const splitWidth = width / columns
-  const splitHeight = height / rows
+	const splitWidth = width / columns
+	const splitHeight = height / rows
 
-  const cells: Cell[] = []
+	const cells: Cell[] = []
+	for (let i = 0; i < rows; i++) {
+		for (let j = 0; j < columns; j++) {
+			cells.push(
+				new Cell({
+					bounds: {
+						left: left + j * splitWidth,
+						top: top + i * splitHeight,
+						right: right - (columns - j - 1) * splitWidth,
+						bottom: bottom - (rows - i - 1) * splitHeight,
+					},
+					colour: cell.colour,
+				}),
+			)
+		}
+	}
 
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < columns; j++) {
-      //for (let i = rows - 1; i >= 0; i--) {
-      //	for (let j = columns - 1; j >= 0; j--) {
-      const splitCell = new Cell({
-        bounds: {
-          left: left + j * splitWidth,
-          top: top + i * splitHeight,
-          right: right - (columns - j - 1) * splitWidth,
-          bottom: bottom - (rows - i - 1) * splitHeight,
-        },
-        colour: cell.colour,
-      })
-
-      cells.push(splitCell)
-    }
-  }
-
-  return cells
+	return cells
 }
 
 // Chop a cell into smaller cells along an axis
 // The targets are the positions along the axis where the cells should be chopped
-const chop = (cell: Cell, axis: string, targets: number[]) => {
-  if (targets.length === 0) {
-    return [cell]
-  }
+const chop = (cell: Cell, axis: Axis, targets: number[]) => {
+	if (targets.length === 0) {
+		return [cell]
+	}
 
-  const direction = AXIS[axis]
+	const direction = AXIS[axis]
 
-  targets = targets
-    .sort((a, b) => a - b)
-    .filter((v, i) => {
-      const previous = targets[i - 1]
-      return previous === undefined || v !== previous
-    })
+	// Sort and remove duplicates
+	targets = [...new Set(targets)].sort((a, b) => a - b)
 
-  const cells: Cell[] = []
-  let currentTarget = cell.bounds[direction.min]
-  for (let i = 0; i <= targets.length; i++) {
-    const target = targets[i] || cell.bounds[direction.max]
+	const cells: Cell[] = []
+	let currentTarget = cell.bounds[direction.min]
+	for (let i = 0; i <= targets.length; i++) {
+		const target = targets[i] ?? cell.bounds[direction.max]
 
-    if (target === currentTarget) {
-      continue
-    }
+		if (target === currentTarget) {
+			continue
+		}
 
-    const bounds = {
-      [direction.min]: currentTarget,
-      [direction.max]: target,
-      [direction.adjacent.min]: cell.bounds[direction.adjacent.min],
-      [direction.adjacent.max]: cell.bounds[direction.adjacent.max],
-    } as { left: number, right: number, top: number, bottom: number }
+		const bounds = {
+			[direction.min]: currentTarget,
+			[direction.max]: target,
+			[direction.adjacent.min]: cell.bounds[direction.adjacent.min],
+			[direction.adjacent.max]: cell.bounds[direction.adjacent.max],
+		} as unknown as Bounds
 
-    const choppedCell = new Cell({
-      bounds,
-      colour: cell.colour,
-    })
+		cells.push(new Cell({ bounds, colour: cell.colour }))
+		currentTarget = target
+	}
 
-    cells.push(choppedCell)
-    currentTarget = target
-  }
-
-  return cells
+	return cells
 }
 
 // From an array of cells, return a single cell that encompasses all of them
 // This assumes that the cells are all connected via touching
 // The cells can be in any order and can have different dimensions
-const merge = (cells: Cell[], colour = cells[0]!.colour) => {
-  if (cells.length === 0) {
-    throw new Error("Cannot merge 0 cells")
-  }
+const merge = (cells: Cell[]) => {
+	const [first] = cells
+	if (first === undefined) {
+		throw new Error("Cannot merge 0 cells")
+	}
 
-  let left = Infinity
-  let top = Infinity
-  let right = -Infinity
-  let bottom = -Infinity
+	let left = Infinity
+	let top = Infinity
+	let right = -Infinity
+	let bottom = -Infinity
 
-  for (const cell of cells) {
-    const { bounds } = cell
-    left = Math.min(left, bounds.left)
-    top = Math.min(top, bounds.top)
-    right = Math.max(right, bounds.right)
-    bottom = Math.max(bottom, bounds.bottom)
-  }
+	for (const { bounds } of cells) {
+		left = Math.min(left, bounds.left)
+		top = Math.min(top, bounds.top)
+		right = Math.max(right, bounds.right)
+		bottom = Math.max(bottom, bounds.bottom)
+	}
 
-  return new Cell({
-    colour,
-    bounds: {
-      left,
-      top,
-      right,
-      bottom,
-    },
-  })
+	return new Cell({ colour: first.colour, bounds: { left, top, right, bottom } })
 }
 
-const reposition = (cell: Cell, bounds: any) => {
-  return new Cell({
-    colour: cell.colour,
-    bounds: {
-      ...cell.bounds,
-      ...bounds,
-    },
-  })
+const reposition = (cell: Cell, bounds: Partial<Bounds>) => {
+	return new Cell({
+		colour: cell.colour,
+		bounds: { ...cell.bounds, ...bounds },
+	})
 }
 
 export const recolour = (cell: Cell, colour: Colour) => {
-  return new Cell({
-    colour,
-    bounds: cell.bounds,
-  })
-}
-
-const getNeighbours = (cell: Cell, world: World) => {
-  return {
-    left: getNeighbour(cell, world, "left"),
-    right: getNeighbour(cell, world, "right"),
-    top: getNeighbour(cell, world, "top"),
-    bottom: getNeighbour(cell, world, "bottom"),
-  }
-}
-
-const getNeighbour = (cell: Cell, world: World, edge: string) => {
-  const direction = DIRECTION[edge]
-  const opposite = direction.opposite
-  const oppositeEdge = opposite.name
-
-  const front = cell.bounds[edge]
-  const min = cell.bounds[direction.min]
-  const max = cell.bounds[direction.max]
-
-  const neighbours = pickContacts(cell, world, edge)
-  for (const neighbour of neighbours) {
-    if (front !== neighbour.bounds[oppositeEdge]) continue
-    if (min !== neighbour.bounds[direction.min]) continue
-    if (max !== neighbour.bounds[direction.max]) continue
-    return neighbour
-  }
-  return undefined
+	return new Cell({ colour, bounds: cell.bounds })
 }
 
 // Pick an array of cells that are adjacent and touching the given cell
-export const pickContacts = (cell: Cell, world: World, edge = "right") => {
-  const { bounds } = cell
-  const direction = DIRECTION[edge]
-  const opposite = direction.opposite
-  const oppositeEdge = opposite.name
+export const pickContacts = (cell: Cell, world: World, edge: Edge) => {
+	const { bounds } = cell
+	const direction = DIRECTION[edge]
 
-  const front = bounds[edge]
-  const min = bounds[direction.min]
-  const max = bounds[direction.max]
+	const front = bounds[edge]
+	const min = bounds[direction.min]
+	const max = bounds[direction.max]
 
-  const cache = world.caches[oppositeEdge]
-  const set = cache.get(front)
-  if (set === undefined) {
-    return []
-  }
+	const set = world.caches[direction.opposite.name].get(front)
+	if (set === undefined) {
+		return []
+	}
 
-  const cells: Cell[] = []
-  for (const other of set) {
-    const otherMin = other.bounds[direction.min]
-    const otherMax = other.bounds[direction.max]
+	const cells: Cell[] = []
+	for (const other of set) {
+		const otherMin = other.bounds[direction.min]
+		const otherMax = other.bounds[direction.max]
 
-    // Check if the cells overlap in any way at all
-    if (otherMin >= max || otherMax <= min) {
-      continue
-    }
+		// Check if the cells overlap in any way at all
+		if (otherMin >= max || otherMax <= min) {
+			continue
+		}
 
-    cells.push(other)
-  }
+		cells.push(other)
+	}
 
-  return cells
+	return cells
 }
 
-// Abstract the logic of isolating contacts from moveDown
-const snipContacts = (cell: Cell, contacts: Cell[], edge: string, reach = Infinity) => {
-  const direction = DIRECTION[edge]
-  const opposite = direction.opposite
-  const adjacent = direction.adjacent
-  const oppositeEdge = opposite.name
+// Cut the contacts on one edge of a cell down to pieces that fit exactly against the cell
+// Returns the fitted pieces (snips), the leftover pieces (excesses), and how far the snips reach
+const snipContacts = (cell: Cell, contacts: Cell[], edge: Edge, reach = Infinity) => {
+	const direction = DIRECTION[edge]
+	const adjacent = direction.adjacent
+	const oppositeEdge = direction.opposite.name
 
-  const contactReach = Math.min(reach, ...contacts.map((contact) => contact.dimensions[adjacent.dimensionNumber]))
-  const signedReach = contactReach * direction.sign
+	const contactReach = Math.min(reach, ...contacts.map((contact) => contact.dimensions[adjacent.dimensionNumber]))
+	const signedReach = contactReach * direction.sign
 
-  const sizeds: Cell[] = []
-  const excesses: Cell[] = []
+	const sizeds: Cell[] = []
+	const excesses: Cell[] = []
 
-  for (const contact of contacts) {
-    const { bounds } = contact
-    const chops = chop(contact, direction.adjacent.axis, [bounds[oppositeEdge] + signedReach])
+	for (const contact of contacts) {
+		const [head, tail] = chop(contact, adjacent.axis, [contact.bounds[oppositeEdge] + signedReach])
 
-    if (direction.sign === 1) {
-      const [sized, excess] = chops
-      sizeds.push(sized)
-      if (excess !== undefined) {
-        excesses.push(excess)
-      }
-    } else {
-      const [head, tail] = chops
-      if (tail !== undefined) {
-        sizeds.push(tail)
-        excesses.push(head)
-      } else {
-        sizeds.push(head)
-      }
-    }
-  }
+		if (direction.sign === 1) {
+			sizeds.push(head!)
+			if (tail !== undefined) excesses.push(tail)
+		} else if (tail !== undefined) {
+			sizeds.push(tail)
+			excesses.push(head!)
+		} else {
+			sizeds.push(head!)
+		}
+	}
 
-  // If any sizedContacts overlap the cell, chop them off
-  const cellMin = cell.bounds[direction.min]
-  const cellMax = cell.bounds[direction.max]
-  const snips: Cell[] = []
-  for (let sized of sizeds) {
-    // If the contact overlaps with the min of the cell, chop it off
-    const sizedMin = sized.bounds[direction.min]
-    if (sizedMin < cellMin) {
-      const [excess, snip] = chop(sized, direction.axis, [cellMin])
-      sized = snip
-      excesses.push(excess)
-    }
+	// If any sized contacts overlap the cell, chop them off
+	const cellMin = cell.bounds[direction.min]
+	const cellMax = cell.bounds[direction.max]
+	const snips: Cell[] = []
+	for (let sized of sizeds) {
+		if (sized.bounds[direction.min] < cellMin) {
+			const [excess, snip] = chop(sized, direction.axis, [cellMin])
+			sized = snip!
+			excesses.push(excess!)
+		}
 
-    // If the contact overlaps with the max of the cell, chop it off
-    const sizedMax = sized.bounds[direction.max]
-    if (sizedMax > cellMax) {
-      const [snip, excess] = chop(sized, direction.axis, [cellMax])
-      sized = snip
-      excesses.push(excess)
-    }
+		if (sized.bounds[direction.max] > cellMax) {
+			const [snip, excess] = chop(sized, direction.axis, [cellMax])
+			sized = snip!
+			excesses.push(excess!)
+		}
 
-    // Now we're left with a contact that fits perfectly inside the cell
-    snips.push(sized)
-  }
+		// Now we're left with a contact that fits perfectly inside the cell
+		snips.push(sized)
+	}
 
-  return [snips, excesses, contactReach] as const
+	return { snips, excesses, reach: contactReach }
 }
 
-const pickSnips = (cell: Cell, world: any, edge: string, reach: number | undefined) => {
-  const contacts = pickContacts(cell, world, edge)
-  const [snips, excesses, maxReach] = snipContacts(cell, contacts, edge, reach)
-  return { contacts, snips, excesses, reach: maxReach }
+const pickSnips = (cell: Cell, world: World, edge: Edge, reach: number) => {
+	const contacts = pickContacts(cell, world, edge)
+	return { contacts, ...snipContacts(cell, contacts, edge, reach) }
 }
 
-// Edge could technically be determined from the snips, but it's easier to pass them in
-const swapSnips = (cell: Cell, snips: Cell[], edge: string) => {
-  const direction = DIRECTION[edge]
-  const adjacent = direction.adjacent
-  const opposite = direction.opposite
-  const oppositeEdge = opposite.name
+// Swap a cell with the snips on one of its edges
+const swapSnips = (cell: Cell, snips: Cell[], edge: Edge) => {
+	const direction = DIRECTION[edge]
+	const oppositeEdge = direction.opposite.name
+	const cellSize = cell.dimensions[direction.adjacent.dimensionNumber]
 
-  //const snipsSize = snips[0].dimensions[adjacent.dimensionNumber] //all snips should be the same size
-  const cellSize = cell.dimensions[adjacent.dimensionNumber]
+	// front   snip     cell
+	// middle  middle   middle
+	// back    cell     snip
+	const front = snips[0]!.bounds[edge]
+	const back = cell.bounds[oppositeEdge]
+	const middle = front - cellSize * direction.sign
 
-  // front   snip     cell
-  // middle  middle   middle
-  // back    cell     snip
+	const newCell = reposition(cell, { [edge]: front, [oppositeEdge]: middle })
+	const newSnips = snips.map((snip) => reposition(snip, { [oppositeEdge]: back, [edge]: middle }))
 
-  const front = snips[0].bounds[edge]
-  const back = cell.bounds[oppositeEdge]
-
-  const middle = front - cellSize * direction.sign
-  //const middle2 = back + snipsSize * direction.sign
-  //print(middle, middle2)
-
-  const newCell = reposition(cell, {
-    [edge]: direction.sign === 1 ? front : front,
-    [oppositeEdge]: direction.sign === 1 ? middle : middle,
-  })
-
-  const newSnips: Cell[] = []
-  for (const snip of snips) {
-    const newSnip = reposition(snip, {
-      [oppositeEdge]: direction.sign === 1 ? back : back,
-      [edge]: direction.sign === 1 ? middle : middle,
-    })
-    newSnips.push(newSnip)
-  }
-
-  return [newCell, ...newSnips]
+	return [newCell, ...newSnips]
 }
 
-const defaultJudge = (cells: Cell[]) => {
-  const areas = cells.map((cell) => cell.dimensions[0] * cell.dimensions[1])
-  const maxArea = Math.max(...areas)
-  return maxArea
-}
+type Judge = (cells: Cell[]) => number
+type Compare = (a: number, b?: number) => boolean
 
-const defaultCompare = (a, b = -Infinity) => a > b
+const defaultJudge: Judge = (cells) => Math.max(...cells.map((cell) => cell.dimensions[0] * cell.dimensions[1]))
 
-const defaultFilter = (cell: Cell) => {
-  const age = wrap(shared.clock - cell.birth, 0, 999)
-  return age > 0
+const defaultCompare: Compare = (a, b = -Infinity) => a > b
+
+const defaultFilter = (cell: Cell) => wrap(shared.clock - cell.birth, 0, 999) > 0
+
+interface SleepOptions {
+	edges?: Edge[]
+	judge?: Judge
+	compare?: Compare
+	filter?: (cell: Cell) => boolean
 }
 
 // 'Sleeping' means merging with a nearby cell so that we don't have to
@@ -324,190 +244,145 @@ const defaultFilter = (cell: Cell) => {
 // There are some different ways a merge could happen:
 // 1. The cell is touching a cell that perfectly lines up with it
 // 2. The cell is touching a bigger cell that can be split into multiple cells that line up with it
-// 3. Probably more
 export const tryToSleep = (
-  cell: Cell,
-  world: World,
-  { edges = Object.keys(DIRECTION), judge = defaultJudge, compare = defaultCompare, filter = defaultFilter } = {},
+	cell: Cell,
+	world: World,
+	{ edges = EDGES, judge = defaultJudge, compare = defaultCompare, filter = defaultFilter }: SleepOptions = {},
 ) => {
-  let winner: undefined | any = undefined
-  let highScore: undefined | number = undefined
+	let winner: Replacement | undefined = undefined
+	let highScore: number | undefined = undefined
 
-  for (const edge of shuffleArray(edges)) {
-    const replacement = sleep(cell, world, edge, filter)
-    const { oldCells, newCells } = replacement
-    if (newCells.length === 0) continue
+	for (const edge of shuffleArray([...edges])) {
+		const replacement = sleep(cell, world, edge, filter)
+		if (replacement === undefined) continue
+		const [oldCells, newCells] = replacement
 
-    const newScore = judge(newCells)
-    const oldScore = judge(oldCells)
+		const newScore = judge(newCells)
+		const oldScore = judge(oldCells)
 
-    if (compare(newScore, oldScore) && compare(newScore, highScore)) {
-      highScore = newScore
-      winner = replacement
-    }
-  }
+		if (compare(newScore, oldScore) && compare(newScore, highScore)) {
+			highScore = newScore
+			winner = replacement
+		}
+	}
 
-  if (winner === undefined) {
-    return []
-  }
+	if (winner === undefined) {
+		return []
+	}
 
-  const { oldCells, newCells } = winner
-  return world.replace(oldCells, newCells)
+	return world.replace(...winner)
 }
 
-const average = (array) => array.reduce((a, b) => a + b, 0) / array.length
-
-const scoresAreBetter = (a, b) => {
-  for (let i = 0; i < a.length; i++) {
-    if (b[i] === undefined) return true
-    if (a[i] === undefined) return false
-    if (a[i] === b[i]) continue
-    return a[i] > b[i]
-  }
-
-  return false
+const equals = (a: readonly number[], b: readonly number[]) => {
+	if (a === b) return true
+	if (a.length !== b.length) return false
+	for (let i = 0; i < a.length; i++) {
+		if (a[i] !== b[i]) return false
+	}
+	return true
 }
 
-const equals = (a, b) => {
-  if (a === b) return true
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false
-  }
-  return true
+// Try to move a cell towards an edge, swapping places with whatever non-solid cells are there
+// Returns the replacement that should be done, or undefined if the cell can't move
+export const move = (cell: Cell, world: World, edge: Edge, speed: number, minSize = 0): Replacement | undefined => {
+	const direction = DIRECTION[edge]
+	const below = pickSnips(cell, world, edge, speed)
+
+	if (below.snips.length === 0) {
+		return undefined
+	}
+
+	const isGap = (c: Cell) => !SOLID.has(c.colour.splash) && c.colour.splash !== cell.splash
+
+	// If there isn't solid below, fall
+	if (below.snips.every(isGap)) {
+		const movedCells = swapSnips(cell, below.snips, edge)
+		return [
+			[cell, ...below.contacts],
+			[...below.excesses, ...movedCells],
+		]
+	}
+
+	// If there are some gaps below, cut myself up into gap-sized pieces so they can fall into them
+	const gaps = below.snips.filter(isGap)
+	if (gaps.length > 0) {
+		const targets = gaps.flatMap((v) => [v.bounds[direction.min], v.bounds[direction.max]])
+		const pieces = chop(cell, direction.axis, targets)
+		const size = direction.dimensionNumber
+		if (cell.dimensions[size] >= minSize && pieces.some((piece) => piece.dimensions[size] <= minSize)) {
+			return undefined
+		}
+		return [[cell], pieces]
+	}
+
+	return undefined
 }
 
-// Returns a list of replacements that should be done
-export const move = (cell: Cell, world: World, edge, speed: number, minSize = 0) => {
-  const direction = DIRECTION[edge]
-  const below = pickSnips(cell, world, edge, speed)
+// Find a way to merge a cell with a contact on one edge
+// Returns the replacement that would do it, or undefined if there isn't one
+const sleep = (cell: Cell, world: World, edge: Edge, filter: (cell: Cell) => boolean): Replacement | undefined => {
+	const direction = DIRECTION[edge]
+	const cellMin = cell.bounds[direction.min]
+	const cellMax = cell.bounds[direction.max]
 
-  if (below.snips.length === 0) {
-    return []
-  }
+	// Get all the cells that are touching this cell, in a random order
+	// so that we don't always merge with the same cell
+	const candidates = shuffleArray(pickContacts(cell, world, edge).filter(filter))
 
-  const water = cell
+	let splitCandidate: Cell | undefined = undefined
 
-  // If there isn't solid below, fall
-  if (below.snips.every((c) => !SOLID.has(c.colour.splash) && c.colour.splash !== cell.splash)) {
-    const movedCells = swapSnips(water, below.snips, edge)
-    return [
-      [cell, ...below.contacts],
-      [...below.excesses, ...movedCells],
-    ]
-  }
+	for (const candidate of candidates) {
+		// If the candidate is a different colour, we can't merge with it
+		if (!equals(candidate.colour, cell.colour)) {
+			continue
+		}
 
-  // If there are some gaps below, fall into those bits
-  const gaps = below.snips.filter((c) => !SOLID.has(c.colour.splash) && c.colour.splash !== cell.splash)
-  if (gaps.length > 0) {
-    // Cut myself up into gap-sized pieces
-    const targets = gaps.map((v) => [v.bounds[direction.min], v.bounds[direction.max]]).flat()
-    const pieces = chop(water, direction.axis, targets)
-    for (const piece of pieces) {
-      if (
-        water.dimensions[direction.dimensionNumber] >= minSize &&
-        piece.dimensions[direction.dimensionNumber] <= minSize
-      ) {
-        return []
-      }
-    }
-    3
-    return [[water], [...pieces]]
-  }
+		const candidateMin = candidate.bounds[direction.min]
+		const candidateMax = candidate.bounds[direction.max]
 
-  return []
+		// If the candidate is the exact same size as us, we can merge with it
+		if (candidateMin === cellMin && candidateMax === cellMax) {
+			return [[cell, candidate], [merge([cell, candidate])]]
+		}
+
+		// If the candidate is smaller at either end, we can't merge with it
+		if (candidateMin > cellMin || candidateMax < cellMax) {
+			continue
+		}
+
+		// Otherwise, the candidate is bigger than us
+		// We can split the candidate into multiple cells that line up with us
+		// Then we can merge with one of those cells
+		splitCandidate ??= candidate
+	}
+
+	if (splitCandidate === undefined) {
+		return undefined
+	}
+
+	// Where should we split the candidate? We might need to chop in two places, or just one
+	const targets: number[] = []
+	let mergeIndex = 0
+	if (splitCandidate.bounds[direction.min] < cellMin) {
+		targets.push(cellMin)
+		mergeIndex = 1
+	}
+	if (splitCandidate.bounds[direction.max] > cellMax) {
+		targets.push(cellMax)
+	}
+
+	const splitCells = chop(splitCandidate, direction.axis, targets)
+	const mergedCell = merge([cell, splitCells[mergeIndex]!])
+
+	return [
+		[cell, splitCandidate],
+		[mergedCell, ...splitCells.filter((_, i) => i !== mergeIndex)],
+	]
 }
 
-const sleep = (cell: Cell, world: World, edge, filter) => {
-  const failure = { oldCells: [], newCells: [] }
-
-  const direction = DIRECTION[edge]
-
-  // Get all the cells that are touching this cell (in a randomly ordered array)
-  const contacts = pickContacts(cell, world, edge).filter(filter)
-
-  // If there are no contacts, we can't merge with anything
-  if (contacts.length === 0) {
-    return failure
-  }
-
-  // Shuffle the contacts so that we don't always merge with the same cell
-  const candidates = shuffleArray(contacts)
-
-  const splitCandidates: Cell[] = []
-
-  // Loop through all the candidates
-  // If we find a cell that we can merge with, we'll merge with it and return true
-  for (const candidate of candidates) {
-    // If the candidate is a different colour, we can't merge with it
-    if (!equals(candidate.colour, cell.colour)) {
-      continue
-    }
-
-    // TODO: This should chop off more cleverly, rather than just sleep with anything
-    // If the candidate is the exact same size as us, we can merge with it
-    if (
-      candidate.bounds[direction.min] === cell.bounds[direction.min] &&
-      candidate.bounds[direction.max] === cell.bounds[direction.max]
-    ) {
-      const newCells = [merge([cell, candidate])]
-      const oldCells = [cell, candidate]
-      return { oldCells, newCells }
-    }
-
-    // If the candidate is smaller at either end, we can't merge with it
-    if (
-      candidate.bounds[direction.min] > cell.bounds[direction.min] ||
-      candidate.bounds[direction.max] < cell.bounds[direction.max]
-    ) {
-      continue
-    }
-
-    // Otherwise, the candidate is bigger than us
-    // We can split the candidate into multiple cells that line up with us
-    // Then we can merge with one of those cells
-    // (we should use the chop function for this because it allows us more control over the split)
-    splitCandidates.push(candidate)
-  }
-
-  // TODO: Remove this loop
-  // There should only ever be one candidate that we can merge with
-  // so this is a pointless loop
-  for (const candidate of splitCandidates) {
-    // Where should we split the candidate?
-    // We might need to chop in two places, or just one
-    const targets: number[] = []
-    let mergeIndex = 0
-    if (candidate.bounds[direction.min] < cell.bounds[direction.min]) {
-      targets.push(cell.bounds[direction.min])
-      mergeIndex = 1
-    }
-    if (candidate.bounds[direction.max] > cell.bounds[direction.max]) {
-      targets.push(cell.bounds[direction.max])
-    }
-
-    // Split the candidate into multiple cells
-    const splitCells = chop(candidate, direction.axis, targets)
-
-    // Merge with one of the split cells
-    const mergedCell = merge([cell, splitCells[mergeIndex]])
-
-    // Return all the cells we created
-    const oldCells = [cell, candidate]
-    const newCells = [mergedCell, ...splitCells.filter((c, i) => i !== mergeIndex)]
-    return { oldCells, newCells }
-  }
-
-  return failure
-}
-
-// Get the distance from a point to any point on the bounds of a rectangle or inside the rectangle
-export const distanceToBounds = (point, bounds) => {
-  const { x, y } = point
-  const { left, right, top, bottom } = bounds
-
-  const dx = Math.max(left - x, 0, x - right)
-  const dy = Math.max(top - y, 0, y - bottom)
-
-  return Math.sqrt(dx * dx + dy * dy)
+// Get the distance from a point to the nearest point on (or inside) a rectangle
+export const distanceToBounds = ([x, y]: Vector2, { left, right, top, bottom }: Bounds) => {
+	const dx = Math.max(left - x, 0, x - right)
+	const dy = Math.max(top - y, 0, y - bottom)
+	return Math.hypot(dx, dy)
 }

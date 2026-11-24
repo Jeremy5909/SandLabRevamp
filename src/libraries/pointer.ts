@@ -1,29 +1,28 @@
-let isPointerTracked = false
+import type { Vector2 } from "./vector"
+
 const pointer = {
-  position: [undefined, undefined] as [undefined, undefined] | [number, number],
-  down: undefined as undefined | boolean,
+	position: undefined as Vector2 | undefined,
+	down: false,
 }
 
+let isPointerTracked = false
 export const getPointer = () => {
-  if (isPointerTracked) return pointer
-  isPointerTracked = true
+	if (isPointerTracked) return pointer
+	isPointerTracked = true
 
-  addEventListener("pointermove", (e) => {
-    pointer.position[0] = e.clientX
-    pointer.position[1] = e.clientY
-  })
+	addEventListener("pointermove", (e) => {
+		pointer.position = [e.clientX, e.clientY]
+	})
 
-  addEventListener("pointerdown", (e) => {
-    pointer.position[0] = e.clientX
-    pointer.position[1] = e.clientY
-    pointer.down = true
-  })
+	addEventListener("pointerdown", (e) => {
+		pointer.position = [e.clientX, e.clientY]
+		pointer.down = true
+	})
 
-  addEventListener("pointerup", (e) => {
-    pointer.position[0] = e.clientX
-    pointer.position[1] = e.clientY
-    pointer.down = false
-  })
+	addEventListener("pointerup", (e) => {
+		pointer.position = [e.clientX, e.clientY]
+		pointer.down = false
+	})
 
-  return pointer
+	return pointer
 }
